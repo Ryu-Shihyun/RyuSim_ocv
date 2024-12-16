@@ -1,0 +1,11 @@
+<routes>
+
+	<vType id="vtype0" accel="2.6" decel="4.5" sigma="0.5" length="4" minGap="30" maxSpeed="27.78" departLane="0" departSpeed="max"/>
+	<vType id="vtype1" accel="2.6" decel="4.5" sigma="0.5" length="4" minGap="30" maxSpeed="27.78" departLane="1" departSpeed="max"/>
+
+	<flow id="flow0" type="vtype0" number="29" probability="0.5" from="LS" to="RE" departLane="0" departSpeed="max"/>
+	<flow id="flow1" type="vtype1" number="29" probability="0.5" from="LS" to="RE" departLane="1" departSpeed="max"/>
+	
+	<flow id="flow2" type="vtype0" number="29" probability="0.5" from="RS" to="LE" departLane="0" departSpeed="max"/>
+	<flow id="flow3" type="vtype1" number="29" probability="0.5" from="RS" to="LE" departLane="1" departSpeed="max"/>
+</routes>

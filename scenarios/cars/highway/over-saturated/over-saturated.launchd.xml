@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!-- debug config -->
+<launch>
+    <copy file="over-saturated.net.xml" />
+    <copy file="over-saturated.rou.xml" />
+    <copy file="over-saturated.sumo.cfg" type="config" />
+</launch>
+

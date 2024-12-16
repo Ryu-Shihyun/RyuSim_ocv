@@ -1,0 +1,46 @@
+<routes>
+
+    <!-- from left -->
+    <vType id="vtype0" accel="2" decel="2.5" sigma="0.5" length="2.5" minGap="0" maxSpeed="11.1" color="1,1,0"    />
+        <route id="route0_0" edges="E0 E1 -E7 -E2 E3 E6 -E1 -E0 E5 -E3 E2 E4"/>
+        <route id="route0_1" edges="E0 E2 E4 E0 E3 E6 -E1 E3 E6 -E1 E2 E4"/>
+        <route id="route0_2" edges="E0 E3 E6 -E1 E3 E6 -E1 E2 E4 E0 E2"/>
+        <flow id="0" type="vtype0" route="route0_2" vehsPerHour="360" number="5" begin="0" departLane="0" depart = "0.02"/>
+        <flow id="1" type="vtype0" route="route0_0" vehsPerHour="360" number="5" begin="0" departLane="1" depart = "0.02"/>
+        <flow id="2" type="vtype0" route="route0_0" vehsPerHour="360" number="5" begin="0" departLane="2" depart = "0.02"/>
+        <flow id="3" type="vtype0" route="route0_1" vehsPerHour="360" number="5" begin="0" departLane="3" depart = "0.02"/>
+    
+    <!-- from right -->
+    <vType id="vtype1" accel="2" decel="2.5" sigma="0.5" length="2.5" minGap="0" maxSpeed="11.1" color="1,1,0"    />
+        <route id="route1_0" edges="-E1 -E0 E5 -E3 E2 E4 E0 E1 -E7 -E2 E3 E6"/>
+        <route id="route1_1" edges="-E1 E2 E4 E0 E2 E4 E0 E3 E6 -E1 E3 E6"/>
+        <route id="route1_2" edges="-E1 E3 E6 -E1 E2 E4 E0 E2 E4 E0 E3 E6"/>
+        <flow id="10" type="vtype1" route="route1_1" vehsPerHour="360" number="5" begin="0" departLane="0" depart = "0.02"/>
+        <flow id="11" type="vtype1" route="route1_0" vehsPerHour="360" number="5" begin="0" departLane="1" depart = "0.02"/>
+        <flow id="12" type="vtype1" route="route1_0" vehsPerHour="360" number="5" begin="0" departLane="2" depart = "0.02"/>
+        <flow id="13" type="vtype1" route="route1_2" vehsPerHour="360" number="5" begin="0" departLane="3" depart = "0.02"/>
+    
+    <!-- from up -->
+    <vType id="vtype2" accel="2" decel="2.5" sigma="0.5" length="2.5" minGap="0" maxSpeed="11.1" color="1,1,0"    />
+        <route id="route2_0" edges="-E2 E3 E6 -E1 -E0 E5 -E3 E2 E4 E0 E1 -E7"/>
+        <route id="route2_1" edges="-E2 E1 -E7 -E2 -E0 E5 -E3 -E0 E5 -E3 E1 -E7"/>
+        <route id="route2_2" edges="-E2 -E0 E5 -E3 -E0 E5 -E3 E1 -E7 -E2 E1 -E7"/>
+        <flow id="20" type="vtype2" route="route2_2" vehsPerHour="360" number="5" begin="0" departLane="0" depart = "0.02"/>
+        <flow id="21" type="vtype2" route="route2_0" vehsPerHour="360" number="5" begin="0" departLane="1" depart = "0.02"/>
+        <flow id="22" type="vtype2" route="route2_0" vehsPerHour="360" number="5" begin="0" departLane="2" depart = "0.02"/>
+        <flow id="23" type="vtype2" route="route2_1" vehsPerHour="360" number="5" begin="0" departLane="3" depart = "0.02"/>
+    
+    <!-- from down -->
+    <vType id="vtype3" accel="2" decel="2.5" sigma="0.5" length="2.5" minGap="0" maxSpeed="11.1" color="1,1,0"    />
+        <route id="route3_0" edges="-E3 E2 E4 E0 E1 -E7 -E2 E3 E6 -E1 -E0 E5"/>
+        <route id="route3_1" edges="-E3 -E0 E5 -E3 E1 -E7 -E2 E1 -E7 -E2 -E0 E5"/>
+        <route id="route3_2" edges="-E3 E1 -E7 -E2 E1 -E7 -E2 -E0 E5 -E3 -E0 E5"/>
+        <flow id="30" type="vtype3" route="route3_2" vehsPerHour="360" number="5" begin="0" departLane="0" depart = "0.02"/>
+        <flow id="31" type="vtype3" route="route3_0" vehsPerHour="360" number="5" begin="0" departLane="1" depart = "0.02"/>
+        <flow id="32" type="vtype3" route="route3_0" vehsPerHour="360" number="5" begin="0" departLane="2" depart = "0.02"/>
+        <flow id="33" type="vtype3" route="route3_1" vehsPerHour="360" number="5" begin="0" departLane="3" depart = "0.02"/>
+    
+             
+  </routes>
+  
+  

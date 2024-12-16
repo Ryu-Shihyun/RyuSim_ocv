@@ -1,0 +1,20 @@
+<routes>
+
+    <!-- from left -->
+    <vType id="vtype0" accel="0.3" decel="2.5" sigma="0.5" length="2.5" minGap="0" color="1,0,0"    />
+        <route id="route0" edges="E1 E0 E2 "/>
+        <vehicle id="0" type="vtype0" route="route0" departPos="stop" depart="0.0">
+            <!-- <stop endPos="0" until = "900"/> -->
+        </vehicle>
+        
+    <!-- from right -->
+    <vType id="vtype1" accel="0.3" decel="2.5" sigma="0.5" length="2.5" minGap="0" color="0,1,0"    />
+        <route id="route1" edges="-E2 -E0 -E1"/>
+        <vehicle id="1" type="vtype1" route="route1" departPos="stop" depart="0.0">
+            <!-- <stop endPos="0" until = "900"/> -->
+        </vehicle>
+      
+        
+    
+             
+  </routes>

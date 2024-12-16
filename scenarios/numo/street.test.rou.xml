@@ -1,0 +1,21 @@
+<routes>
+
+    <!-- from left -->
+    <vType id="vtype0" accel="2" decel="2.5" sigma="0.5" length="2.5" minGap="0" maxSpeed="11.1" color="1,1,0"    />
+        <route id="route0" edges="E0 E1 E2 E3 E4 -E0 E5 E6 E7 E8 E0 E1 E2 E3 E4 -E0 E5 E6 E7 E8 E0 E1 E2 E3 E4 -E0 E5 E6 E7 E8 E0 E1 E2 E3 E4 -E0 E5 E6 E7 E8 "/>
+        <flow id="0" type="vtype0" route="route0" vehsPerHour="720" number="28" begin="0" departLane="0" depart = "0.02"/>
+        <flow id="1" type="vtype0" route="route0" vehsPerHour="720" number="27" begin="1.6" departLane="1" depart = "0.02"/>
+        <flow id="2" type="vtype0" route="route0" vehsPerHour="720" number="27" begin="4.8" departLane="2" depart = "0.02"/>
+        
+    
+    <!-- from right -->
+    <!-- <vType id="vtype1" accel="2" decel="2.5" sigma="0.5" length="2.5" minGap="0" maxSpeed="11.1" color="1,1,0"    />
+        <route id="route1" edges="-E0 E5 E6 E7 E8 E0 E1 E2 E3 E4 -E0 E5 E6 E7 E8 E0 E1 E2 E3 E4 -E0 E5 E6 E7 E8 E0 E1 E2 E3 E4 -E0 E5 E6 E7 E8 E0 E1 E2 E3 E4 "/>
+        <flow id="13" type="vtype1" route="route1" vehsPerHour="720" number="14" begin="0" departLane="0" depart = "0.02"/>
+        <flow id="14" type="vtype1" route="route1" vehsPerHour="720" number="13" begin="1.6" departLane="1" depart = "0.02"/>
+        <flow id="12" type="vtype1" route="route1" vehsPerHour="2160" number="40" begin="0" departLane="2" depart = "0.02"/> -->
+        
+             
+  </routes>
+  
+  

@@ -1,0 +1,12 @@
+<configuration>
+	<input>
+	    <step-length value="0.05"/>
+		<net-file value="One2One.net.xml"/>
+		<route-files value="One2One.rou.xml"/>
+		
+	</input>
+    <time>
+        <end value="1000"/>
+    </time>
+
+</configuration>
