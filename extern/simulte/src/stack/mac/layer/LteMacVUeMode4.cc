@@ -944,7 +944,7 @@ void LteMacVUeMode4::macHandleSps(cPacket* pkt)
     // Select random element from vector
     int index = intuniform(0, CSRs.size()-1, 1);
     //start ryu
-    // std::tuple<double, int, int, bool> selectedCR = CSRs[index];
+    std::tuple<double, int, int, bool> selectedCR = CSRs[index];
     // std::string csv_file_path = "data/resourcesAllocation.csv"; // added by ryu
     // std::ofstream ofs;
     // ofs.open(csv_file_path,std::ios::app);

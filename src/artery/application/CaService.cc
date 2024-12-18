@@ -24,6 +24,8 @@
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>
+#include <unordered_map>
+
 
 namespace artery
 {
@@ -258,11 +260,19 @@ void CaService::sendCam(const SimTime& T_now)
 	payload->layer(OsiLayer::Application) = std::move(buffer);
 	// ofs << T_now.format(-9)<< "," << mVehicleDataProvider->station_id() << "," << payload->size() << ","<< mVehicleDataProvider->position().x.value() <<","<< mVehicleDataProvider->position().y.value() << "," << mVehicleDataProvider->heading().value()<< "," << mVehicleDataProvider->speed().value() << std::endl;
 	// ofs.close();
+	//start ryu
 	emit(camSentHead,mVehicleDataProvider->heading().value(),nullptr);
 	emit(camSentPositionX,mVehicleDataProvider->position().x.value(),nullptr);
 	emit(camSentPositionY,mVehicleDataProvider->position().y.value(),nullptr);
 	emit(camSentSpeed,mVehicleDataProvider->speed().value(),nullptr);
 	
+	// 外部ファイルを作成
+	std::string parameter_str = "parameter.data"
+	std::ofstream ofs;
+	ofs.open(paramiter_str,std::ios::app);
+	//T_changeを出力する関数を呼び出す
+	// parameter.dataに書き込み
+	//end ryu
 	this->request(request, std::move(payload), mNetworkInterfaceTable->select(0).get());
 }
 
@@ -363,5 +373,70 @@ void addLowFrequencyContainer(vanetza::asn1::Cam& message)
 		throw cRuntimeError("Invalid Low Frequency CAM: %s", error.c_str());
 	}
 }
+
+//start by ryu
+void updateCSVWithIndex(std::string& filename,  std::string& id,  bool isChange)
+{
+	std::ifstream inFile(filename);
+    if (!inFile.is_open()) {
+        std::cerr << "Failed to open file: " << filename << std::endl;
+        return;
+    }
+
+    // インデックス作成（ID -> ファイル位置）
+    std::unordered_map<std::string, std::streampos> index;
+    std::string line;
+    std::streampos pos = inFile.tellg();
+
+    while (std::getline(inFile, line)) {
+        std::stringstream ss(line);
+        std::string rowId;
+        std::getline(ss, rowId, ',');
+        index[rowId] = pos;
+        pos = inFile.tellg();
+    }
+
+    inFile.close();
+	
+	//Trueなら1、Falseなら0
+	int int_ischange=0;
+	isChange ? int_ischange=1 : int_ischange=0;
+    // IDが存在する場合、更新
+    if (index.find(id) != index.end()) {
+        std::fstream file(filename, std::ios::in | std::ios::out);
+        if (!file.is_open()) {
+            std::cerr << "Failed to open file for update." << std::endl;
+            return;
+        }
+
+        file.seekp(index[id]);
+        std::getline(file, line); // 更新対象の行を読み飛ばす
+        file.seekp(index[id]);    // 再度位置を調整
+        file << id << ","<< int_ischange << "\n"; //
+
+        file.close();
+    } else {
+        // IDが存在しない場合、新しい行を追加
+        std::ofstream outFile(filename, std::ios::app);
+        if (!outFile.is_open()) {
+            std::cerr << "Failed to open file for appending." << std::endl;
+            return;
+        }
+        outFile << id << "," << int_ischange << "\n";
+        outFile.close();
+    }
+}
+
+bool calculateTChange(const SimTime& T_now, float head, float speed, float posX, float posY)
+{
+	const Simtime T_change_p;
+	float a_e=0;
+	float v_e=0;
+	float degreeA_e=0;
+	float degreeV_e=0;
+
+	return true;
+}
+//end by ryu
 
 } // namespace artery

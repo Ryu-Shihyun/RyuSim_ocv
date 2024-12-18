@@ -79,6 +79,9 @@ class CaService : public ItsG5BaseService
 		omnetpp::simsignal_t camVehicleId;
 
 		double camTriggerHead_;
+
+		void updateCSVWithIndex(std::string& ,  std::string&, bool isChange);
+		bool calculateTChange(const omnetpp::SimTime&, float head, float speed, float posX, float posY);
 };
 
 vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider&, uint16_t genDeltaTime);
