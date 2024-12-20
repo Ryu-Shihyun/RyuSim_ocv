@@ -64,6 +64,9 @@ class CaService : public ItsG5BaseService
 		bool mFixedRate;
 		bool mExponentialNonPeriodic;
         omnetpp::SimTime startUpTime;
+		//ryu test
+		void updateCSVWithIndex(std::string& ,  uint32_t id, bool isChange);
+		bool calculateTChange();
 	private:
 		//ryu test
 		omnetpp::simsignal_t scSignalCamReceived;
@@ -80,8 +83,6 @@ class CaService : public ItsG5BaseService
 
 		double camTriggerHead_;
 
-		void updateCSVWithIndex(std::string& ,  std::string&, bool isChange);
-		bool calculateTChange(const omnetpp::SimTime&, float head, float speed, float posX, float posY);
 };
 
 vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider&, uint16_t genDeltaTime);

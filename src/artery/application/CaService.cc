@@ -158,15 +158,24 @@ void CaService::checkTriggeringConditions(const SimTime& T_now)
 
 	const SimTime T_elapsed = T_now - mLastCamTimestamp;
 
+	// 外部ファイルを作成
+	std::string parameter_str = "parameter.data";
+	
 	if (T_elapsed >= T_GenCamFinal & T_now > startUpTime) {
 		if (mFixedRate || mExponentialNonPeriodic) {
 			sendCam(T_now);
+			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
+			
 		}  else if (checkHeadingDelta(T_now) || checkPositionDelta(T_now) || checkSpeedDelta(T_now)) {
 			sendCam(T_now);
 			T_GenCam = std::min(T_elapsed, T_GenCamMax); /*< if middleware update interval is too long */
 			mGenCamLowDynamicsCounter = 0;
+			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
+			
 		} else if (T_elapsed >= T_GenCam) {
 			sendCam(T_now);
+			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
+
 			if (++mGenCamLowDynamicsCounter >= mGenCamLowDynamicsLimit) {
 				T_GenCam = T_GenCamMax;
 			}
@@ -231,6 +240,7 @@ void CaService::sendCam(const SimTime& T_now)
 	// std::string csv_file_path = "data/camTimeStamp.csv";
 	// std::ofstream ofs;
 	// ofs.open(csv_file_path,std::ios::app);
+	
 	emit(camVehicleId,mVehicleDataProvider->station_id(),	nullptr);
 	//end ryu
 	mLastCamPosition = mVehicleDataProvider->position();
@@ -266,10 +276,7 @@ void CaService::sendCam(const SimTime& T_now)
 	emit(camSentPositionY,mVehicleDataProvider->position().y.value(),nullptr);
 	emit(camSentSpeed,mVehicleDataProvider->speed().value(),nullptr);
 	
-	// 外部ファイルを作成
-	std::string parameter_str = "parameter.data"
-	std::ofstream ofs;
-	ofs.open(paramiter_str,std::ios::app);
+	
 	//T_changeを出力する関数を呼び出す
 	// parameter.dataに書き込み
 	//end ryu
@@ -375,8 +382,11 @@ void addLowFrequencyContainer(vanetza::asn1::Cam& message)
 }
 
 //start by ryu
-void updateCSVWithIndex(std::string& filename,  std::string& id,  bool isChange)
+void CaService::updateCSVWithIndex(std::string& filename,  uint32_t id,  bool isChange)
 {
+	std::string id_str = std::to_string(id);
+	// std::cout << "updateCSVWithIndex" << std::endl;
+
 	std::ifstream inFile(filename);
     if (!inFile.is_open()) {
         std::cerr << "Failed to open file: " << filename << std::endl;
@@ -402,17 +412,17 @@ void updateCSVWithIndex(std::string& filename,  std::string& id,  bool isChange)
 	int int_ischange=0;
 	isChange ? int_ischange=1 : int_ischange=0;
     // IDが存在する場合、更新
-    if (index.find(id) != index.end()) {
+    if (index.find(id_str) != index.end()) {
         std::fstream file(filename, std::ios::in | std::ios::out);
         if (!file.is_open()) {
             std::cerr << "Failed to open file for update." << std::endl;
             return;
         }
 
-        file.seekp(index[id]);
+        file.seekp(index[id_str]);
         std::getline(file, line); // 更新対象の行を読み飛ばす
-        file.seekp(index[id]);    // 再度位置を調整
-        file << id << ","<< int_ischange << "\n"; //
+        file.seekp(index[id_str]);    // 再度位置を調整
+        file << id_str << ","<< int_ischange << "\n"; //
 
         file.close();
     } else {
@@ -422,20 +432,33 @@ void updateCSVWithIndex(std::string& filename,  std::string& id,  bool isChange)
             std::cerr << "Failed to open file for appending." << std::endl;
             return;
         }
-        outFile << id << "," << int_ischange << "\n";
+        outFile << id_str << "," << int_ischange << "\n";
         outFile.close();
     }
 }
 
-bool calculateTChange(const SimTime& T_now, float head, float speed, float posX, float posY)
+bool CaService::calculateTChange()
 {
-	const Simtime T_change_p;
-	float a_e=0;
-	float v_e=0;
-	float degreeA_e=0;
-	float degreeV_e=0;
+	float time_e = mGenCam.dbl();
 
-	return true;
+	// 等加速運動として計算
+	float vectorA_e=(mVehicleDataProvider->speed().value()-mLastCamSpeed.value())/time_e;
+	float vectorV_e=mVehicleDataProvider->speed().value() + vectorA_e * time_e ;
+	// float vectorP_e=mVehicleDataProvider->position() + vectorV_e * time_e + vectorA_e * 0.5 * time_e * time_e;
+	float time_change_p = (sqrt(vectorV_e*vectorV_e+2*vectorA_e*mPositionDelta.value())-vectorV_e)/vectorA_e;
+	float time_change_v = mSpeedDelta.value()/vectorA_e;
+	
+	float degreeV_e=(mVehicleDataProvider->heading().value()-mLastCamHeading.value())/time_e;
+	float degree_e=mVehicleDataProvider->heading().value()+degreeV_e * time_e;
+	float time_change_a = mHeadingDelta.value()/degreeV_e;
+
+	if(mGenCamLowDynamicsCounter >=  mGenCamLowDynamicsLimit){
+		return (mGenCamMax.dbl() >time_change_a ||mGenCamMax.dbl() > time_change_v || mGenCamMax.dbl() > time_change_p);
+	}else{
+		return (time_e >time_change_a ||time_e > time_change_v || time_e > time_change_p);
+	}
+
+
 }
 //end by ryu
 

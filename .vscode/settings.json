@@ -75,6 +75,11 @@
         "dotosgwrapper": "cpp",
         "dynamiclibrary": "cpp",
         "objectwrapper": "cpp",
-        "serializer": "cpp"
+        "serializer": "cpp",
+        "strstream": "cpp",
+        "complex": "cpp",
+        "set": "cpp",
+        "future": "cpp",
+        "variant": "cpp"
     }
 }
