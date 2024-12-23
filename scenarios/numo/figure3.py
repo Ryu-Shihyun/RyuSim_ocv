@@ -260,7 +260,7 @@ if mode in ["traffic_pdr","traffic_delay","box_traffic_pdr","box_traffic_delay"]
     # x:count of tbSent * 190byte * 8 /0.5s
     # y:average of latency for each 0.5s
     span = 5.0
-    ss = "./results/sps_smooth2.csv"
+    ss = "./results/sps_smooth2_rri300.csv"
     sd = "./results/ds_smooth2.csv"
     if len(args) >= 4:
         ss = args[3]

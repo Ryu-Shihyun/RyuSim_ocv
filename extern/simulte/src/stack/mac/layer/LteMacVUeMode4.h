@@ -188,6 +188,13 @@ protected:
     void flushHarqBuffers();
 
     void finish();
+    //start ryu
+    std::unordered_map<std::string, std::string> createIndex(std::string&);
+
+    std::string& searchByIdUsingIndex(std::unordered_map<std::string, std::string>& , std::string& );
+    bool judgeTChange(std::unordered_map<std::string, std::string>& , std::string& );
+
+    //end ryu
 
 public:
     LteMacVUeMode4();

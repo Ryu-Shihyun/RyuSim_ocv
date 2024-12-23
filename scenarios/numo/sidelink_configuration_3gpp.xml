@@ -65,9 +65,9 @@
 			<RestrictResourceReservationPeriod>
 				<parameter name="rri" type="double" value="0.9"/>
 			</RestrictResourceReservationPeriod> -->
-			<RestrictResourceReservationPeriod>
+			<!-- <RestrictResourceReservationPeriod>
 				<parameter name="rri" type="double" value="1.0"/>
-			</RestrictResourceReservationPeriod>
+			</RestrictResourceReservationPeriod> -->
 			<RestrictResourceReservationPeriod>
 				<parameter name="rri" type="double" value="3.0"/>
 			</RestrictResourceReservationPeriod>

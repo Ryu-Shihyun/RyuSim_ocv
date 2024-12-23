@@ -729,6 +729,7 @@ void LteMacVUeMode4::handleSelfMessage()
     }
     else if (mode4Grant->getPeriodic() && mode4Grant->getStartTime() <= NOW)
     {
+       
         // if (nodeId_ == 1026) 
             // cout << NOW << "mode4Grant->getPeriodic() && mode4Grant->getStartTime() <= NOW, nodeID:" << nodeId_ << ",getStartTime():" << mode4Grant->getStartTime()  << endl;//test by ryu
         // Periodic checks
@@ -736,8 +737,8 @@ void LteMacVUeMode4::handleSelfMessage()
         {
             // Gotten to the point of the final tranmission must determine if we reselect or not.
             double randomReReserve = dblrand(1);
-            // if (nodeId_ == 1026) 
-                // cout << NOW << " --expirationCounter_ == mode4Grant->getPeriod() randomReReserve:" << randomReReserve << " expirationCounter_:" << expirationCounter_ << endl;//test by ryu
+            if (nodeId_ == 1026) 
+                cout << NOW << " --expirationCounter_ == mode4Grant->getPeriod() randomReReserve:" << randomReReserve << " expirationCounter_:" << expirationCounter_ << endl;//test by ryu
             if (randomReReserve < probResourceKeep_)
             {
                 int expiration = 0;
@@ -761,8 +762,8 @@ void LteMacVUeMode4::handleSelfMessage()
         }
         if (--periodCounter_>0 && !mode4Grant->getFirstTransmission())
         {
-            // if (nodeId_ == 1026) 
-                // cout << NOW << " --periodCounter_>0 && !mode4Grant->getFirstTransmission(), periodCounter_:" << periodCounter_ << endl;//test by ryu
+            if (nodeId_ == 1026) 
+                cout << NOW << " --periodCounter_>0 && !mode4Grant->getFirstTransmission(), periodCounter_:" << periodCounter_ << endl;//test by ryu
             return;
         }
         else if (expirationCounter_ > 0)
@@ -770,8 +771,24 @@ void LteMacVUeMode4::handleSelfMessage()
             // resetting grant period
             periodCounter_=mode4Grant->getPeriod();
             // this is periodic grant TTI - continue with frame sending
-            // if (nodeId_ == 1026) 
-                // cout << NOW << " expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
+            if (nodeId_ == 1026) 
+                cout << NOW << " expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
+             //start ryu
+            // t_changeを確認する
+            std::string f1 = "parameter_nodeID.data";
+            std::string f2 = "parameter.data";
+            int nodeId_n = nodeId_ - 1025;
+            std::string nodeID_str = std::to_string(nodeId_n);
+            auto index = createIndex(f1);
+            auto index2 = createIndex(f2);
+            if(judgeTChange(index2,searchByIdUsingIndex(index,nodeID_str))){
+                // if t_change , this transmittion make last sps frame
+                if (nodeId_ == 1026){
+                    std::cout << NOW << ", TChange!" << "\n";
+                }
+                expirationCounter_ = 2*mode4Grant->getPeriod();
+            }
+            //end ryu
         }
         else if (expirationCounter_ <= 0)
         {
@@ -873,8 +890,8 @@ void LteMacVUeMode4::handleSelfMessage()
 
             if (!sent)
             {
-                // if (nodeId_ == 1026) 
-                    // cout << "!sent" << endl;//test by ryu
+                if (nodeId_ == 1026) 
+                    cout << "!sent" << endl;//test by ryu
             
                 macPduMake();
             }
@@ -1429,4 +1446,68 @@ void LteMacVUeMode4::finish()
     delete ueInfo_;
 }
 
+std::unordered_map<std::string, std::string> LteMacVUeMode4::createIndex(std::string& filename) {
+    std::unordered_map<std::string, std::string> index;
+    std::ifstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << filename << std::endl;
+        return index;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string id;
+
+        // 最初の列（ID）を取得
+        std::getline(ss, id, ',');
+
+        // インデックスに追加
+        index[id] = line;
+    }
+
+    file.close();
+    return index;
+}
+
+std::string& LteMacVUeMode4::searchByIdUsingIndex(std::unordered_map<std::string, std::string>& index, std::string& targetId) {
+    auto it = index.find(targetId);
+    if (it != index.end()) {
+        // std::cout << "Found: " << it->second << std::endl;
+        std::stringstream ss(it->second);
+        std::vector<std::string> result;
+        std::string item;
+        char c = ',';
+
+        while (std::getline(ss, item, c)) {
+            // std::cout << item << std::endl;
+            result.push_back(item);
+        }
+        std::cout << result[1]  << std::endl;
+        return result[1];
+    } else {
+        std::cout << "ID " << targetId << " not found in index." << std::endl;
+        std::string s = "";
+        return s;
+    }
+}
+bool LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& index, std::string& targetId) {
+    auto it = index.find(targetId);
+    if (it != index.end()) {
+        // std::cout << "Found: " << it->second << std::endl;
+        std::stringstream ss(it->second);
+        std::vector<std::string> result;
+        std::string item;
+        char c = ',';
+
+        while (std::getline(ss, item, c)) {
+            result.push_back(item);
+        }
+        return result[1] == "1";
+    } else {
+        std::cout << "ID " << targetId << " not found in index." << std::endl;
+        return false;
+    }
+}
 
