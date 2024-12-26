@@ -712,9 +712,9 @@ if mode in ["pdrDistance", "0", "1","2"]:
     save = mode
     l =""
     yl = ""
-    csv_s10 ="results/intersection_0.2.rri100.sps.csv"
-    csv_s50 ="results/intersection_0.2.rri500.sps.csv"
-    csv_s100 ="results/intersection_0.2.rri100.sps2.csv"
+    csv_s10 ="results/intersection_sps_rri100.csv"
+    csv_s50 ="results/intersection_pro_rri100.csv"
+    csv_s100 ="results/intersection_pro1.1_rri100.csv"
     csv_d = 'results/intersection_0.2.ds.csv'
     pdr_vector = ""
     if mode=="pdrDistance":
@@ -742,10 +742,10 @@ if mode in ["pdrDistance", "0", "1","2"]:
     fig, ax = plt.subplots()
         
 
-    ax.plot(Pdr_Distance_Distances, pdr10,"o-", label="sps,rri=10ms",c="blue")
-    ax.plot(Pdr_Distance_Distances, pdr50,"o-", label="sps,rri=50ms",c="navy")
-    ax.plot(Pdr_Distance_Distances, pdr100,"o-", label="sps,rri=100ms",c="aqua")
-    ax.plot(Pdr_Distance_Distances, pdrD,"o-", label="ds",c="orange")
+    ax.plot(Pdr_Distance_Distances, pdr10,"o-", label="sps,rri=300ms",c="blue")
+    ax.plot(Pdr_Distance_Distances, pdr50,"o-", label="pro1",c="navy")
+    ax.plot(Pdr_Distance_Distances, pdr100,"o-", label="pro1.1",c="aqua")
+    # ax.plot(Pdr_Distance_Distances, pdrD,"o-", label="ds",c="orange")
     
 
 

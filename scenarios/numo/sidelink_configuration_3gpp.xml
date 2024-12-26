@@ -65,12 +65,12 @@
 			<RestrictResourceReservationPeriod>
 				<parameter name="rri" type="double" value="0.9"/>
 			</RestrictResourceReservationPeriod> -->
-			<!-- <RestrictResourceReservationPeriod>
-				<parameter name="rri" type="double" value="1.0"/>
-			</RestrictResourceReservationPeriod> -->
 			<RestrictResourceReservationPeriod>
-				<parameter name="rri" type="double" value="3.0"/>
+				<parameter name="rri" type="double" value="1.0"/>
 			</RestrictResourceReservationPeriod>
+			<!-- <RestrictResourceReservationPeriod>
+				<parameter name="rri" type="double" value="3.0"/>
+			</RestrictResourceReservationPeriod> -->
 		</RestrictResourceReservationPeriodList>	
 				
 		<Sl-CBR-CommonTxConfigList>

@@ -260,8 +260,8 @@ if mode in ["traffic_pdr","traffic_delay","box_traffic_pdr","box_traffic_delay"]
     # x:count of tbSent * 190byte * 8 /0.5s
     # y:average of latency for each 0.5s
     span = 5.0
-    ss = "./results/sps_smooth2_rri300.csv"
-    sd = "./results/ds_smooth2.csv"
+    ss = "./results/pro1.1_smooth2_rri100.csv"
+    sd = "./results/sps_smooth2_rri100.csv"
     if len(args) >= 4:
         ss = args[3]
     if len(args) >= 5:
@@ -564,7 +564,7 @@ if mode in ["traffic_pdr","traffic_delay","box_traffic_pdr","box_traffic_delay"]
     x_sorted_d = {k: v for k, v in sorted_items_by_value_d}
     # print(x_sorted_)
     y_data_d =[]
-    print("sps\na:")
+    print("pro\na:")
     for k in x_sorted_a.keys():
         if mode in ["traffic_pdr","box_traffic_pdr"]:
             y_data_a.append(y_decode_data_a[k]*100.0)
@@ -809,7 +809,7 @@ if mode in ["traffic_pdr","traffic_delay","box_traffic_pdr","box_traffic_delay"]
     for k, v in x_sorted_d.items():
         x_value2_d.append(float(v))
     #sps=100
-    ss2 = "./results/sps_smooth2_rri100.csv"
+    ss2 = "./results/ds_smooth2.csv"
     senderID3 = {}
     with open(ss2) as f:
         reader = csv.reader(f)
@@ -964,7 +964,7 @@ if mode in ["traffic_pdr","traffic_delay","box_traffic_pdr","box_traffic_delay"]
     x_sorted_d = {k: v for k, v in sorted_items_by_value_d}
     # print(x_sorted_)
     y_data3_d =[]
-    print("ds\na:")
+    print("sps\na:")
     for k in x_sorted_a.keys():
         if mode in ["traffic_pdr","box_traffic_pdr"]:
             y_data3_a.append(y_decode_data3_a[k]*100.0)
@@ -1017,29 +1017,29 @@ if mode in ["traffic_pdr","traffic_delay","box_traffic_pdr","box_traffic_delay"]
     fig, ax = plt.subplots()
     
     if mode in ["traffic_pdr","traffic_delay"]:
-        ax.scatter(x_value3_a[1:], y_data3_a[1:], marker="o", c="blue",label="sps_rri100_a")
-        ax.scatter(x_value_a[1:], y_data_a[1:], marker="^", c="blue",label="sps_rri1_a")
+        ax.scatter(x_value3_a[1:], y_data_a[1:], marker="o", c="blue",label="proposal_a")
+        ax.scatter(x_value_a[1:], y_data3_a[1:], marker="+", c="blue",label="sps_a")
         ax.scatter(x_value2_a[1:], y_data2_a[1:],marker="x", c="aqua",label="ds_a")
-        ax.scatter(x_value3_b[1:], y_data3_b[1:], marker="o", c="green",label="sps_rri100_b")
-        ax.scatter(x_value_b[1:], y_data_b[1:], marker="^", c="green",label="sps_rri1_b")
+        ax.scatter(x_value3_b[1:], y_data_b[1:], marker="o", c="green",label="proposal_b")
+        ax.scatter(x_value_b[1:], y_data3_b[1:], marker="+", c="green",label="sps_b")
         ax.scatter(x_value2_b[1:], y_data2_b[1:],marker="x", c="palegreen",label="ds_b")
-        ax.scatter(x_value3_c[1:], y_data3_c[1:], marker="o", c="red",label="sps_rri100_c")
-        ax.scatter(x_value_c[1:], y_data_c[1:], marker="^", c="red",label="sps_rri1_c")
+        ax.scatter(x_value3_c[1:], y_data_c[1:], marker="o", c="red",label="proposal_c")
+        ax.scatter(x_value_c[1:], y_data3_c[1:], marker="+", c="red",label="sps_c")
         ax.scatter(x_value2_c[1:], y_data2_c[1:],marker="x", c="violet",label="ds_c")
-        ax.scatter(x_value3_d[1:], y_data3_d[1:], marker="o", c="orange",label="sps_rri100_d")
-        ax.scatter(x_value_d[1:], y_data_d[1:], marker="^", c="orange",label="sps_rri1_d")
+        ax.scatter(x_value3_d[1:], y_data_d[1:], marker="o", c="orange",label="proposal_d")
+        ax.scatter(x_value_d[1:], y_data3_d[1:], marker="+", c="orange",label="sps_d")
         ax.scatter(x_value2_d[1:], y_data2_d[1:],marker="x", c="yellow",label="ds_d")
-        ax.plot(x_value3_a[1:], np.poly1d(np.polyfit(x_value3_a[1:], y_data3_a[1:], 1))(x_value3_a[1:]),c="blue")
-        ax.plot(x_value_a[1:], np.poly1d(np.polyfit(x_value_a[1:], y_data_a[1:], 1))(x_value_a[1:]),":",c="blue")
+        ax.plot(x_value3_a[1:], np.poly1d(np.polyfit(x_value3_a[1:], y_data_a[1:], 1))(x_value3_a[1:]),c="blue")
+        ax.plot(x_value_a[1:], np.poly1d(np.polyfit(x_value_a[1:], y_data3_a[1:], 1))(x_value_a[1:]),":",c="blue")
         ax.plot(x_value2_a[1:], np.poly1d(np.polyfit(x_value2_a[1:], y_data2_a[1:], 1))(x_value2_a[1:]),c="aqua")
-        ax.plot(x_value3_b[1:], np.poly1d(np.polyfit(x_value3_b[1:], y_data3_b[1:], 1))(x_value3_b[1:]),c="green")
-        ax.plot(x_value_b[1:], np.poly1d(np.polyfit(x_value_b[1:], y_data_b[1:], 1))(x_value_b[1:]),":",c="green")
+        ax.plot(x_value3_b[1:], np.poly1d(np.polyfit(x_value3_b[1:], y_data_b[1:], 1))(x_value3_b[1:]),c="green")
+        ax.plot(x_value_b[1:], np.poly1d(np.polyfit(x_value_b[1:], y_data3_b[1:], 1))(x_value_b[1:]),":",c="green")
         ax.plot(x_value2_b[1:], np.poly1d(np.polyfit(x_value2_b[1:], y_data2_b[1:], 1))(x_value2_b[1:]),c="palegreen")
-        ax.plot(x_value3_c[1:], np.poly1d(np.polyfit(x_value3_c[1:], y_data3_c[1:], 1))(x_value3_c[1:]),c="red")
-        ax.plot(x_value_c[1:], np.poly1d(np.polyfit(x_value_c[1:], y_data_c[1:], 1))(x_value_c[1:]),":",c="red")
+        ax.plot(x_value3_c[1:], np.poly1d(np.polyfit(x_value3_c[1:], y_data_c[1:], 1))(x_value3_c[1:]),c="red")
+        ax.plot(x_value_c[1:], np.poly1d(np.polyfit(x_value_c[1:], y_data3_c[1:], 1))(x_value_c[1:]),":",c="red")
         ax.plot(x_value2_c[1:], np.poly1d(np.polyfit(x_value2_c[1:], y_data2_c[1:], 1))(x_value2_c[1:]),c="violet")
-        ax.plot(x_value3_d[1:], np.poly1d(np.polyfit(x_value3_d[1:], y_data3_d[1:], 1))(x_value3_d[1:]),c="orange")
-        ax.plot(x_value_d[1:], np.poly1d(np.polyfit(x_value_d[1:], y_data_d[1:], 1))(x_value_d[1:]),":",c="orange")
+        ax.plot(x_value3_d[1:], np.poly1d(np.polyfit(x_value3_d[1:], y_data_d[1:], 1))(x_value3_d[1:]),c="orange")
+        ax.plot(x_value_d[1:], np.poly1d(np.polyfit(x_value_d[1:], y_data3_d[1:], 1))(x_value_d[1:]),":",c="orange")
         ax.plot(x_value2_d[1:], np.poly1d(np.polyfit(x_value2_d[1:], y_data2_d[1:], 1))(x_value2_d[1:]),c="yellow")
         
         ax.set_ylim(0,101)
@@ -1402,10 +1402,10 @@ if mode in ["myenv_traffic_pdr","myenv_traffic_delay","myenv_box_traffic_pdr","m
     # traffic_delay:
     # x:count of tbSent * 190byte * 8 /0.5s
     # y:average of latency for each 0.5s
-    ss = "./results/intersection_0.1.sps.csv"
-    sd = "./results/intersection_0.1.ds.csv"
+    ss = "./results/intersection_sps_rri300.csv"
+    sd = "./results/interseciton_pro1.1_rri300.csv"
     tp = {}
-    span = 1
+    span = 5
     box_span = 50000
     startTime = 200.0
     simTime = 100
@@ -1538,7 +1538,7 @@ if mode in ["myenv_traffic_pdr","myenv_traffic_delay","myenv_box_traffic_pdr","m
     
     if mode in ["myenv_traffic_pdr","myenv_traffic_delay"]:
         ax.scatter(x_value[1:], y_data[1:], marker="o", c="blue",label="sps")
-        ax.scatter(x_value2[1:], y_data2[1:],marker="x", c="orange",label="ds")
+        ax.scatter(x_value2[1:], y_data2[1:],marker="x", c="orange",label="pro")
         ax.plot(x_value[1:], np.poly1d(np.polyfit(x_value[1:], y_data[1:], 1))(x_value[1:]),c="blue")
         ax.plot(x_value2[1:], np.poly1d(np.polyfit(x_value2[1:], y_data2[1:], 1))(x_value2[1:]),c="orange")
         # s1=pd.Series(x_value[1:])
@@ -1579,8 +1579,8 @@ if mode in ["myenv_traffic_pdr","myenv_traffic_delay","myenv_box_traffic_pdr","m
         dict2 = dict(x=x_box_data2,y=y_data2[1:])
         df1 =pd.DataFrame(data=dict1)
         df2 = pd.DataFrame(data=dict2)
-        df1["method"] = "sps"
-        df2["method"] = "ds"
+        df1["method"] = "rri100"
+        df2["method"] = "rri300"
         df = pd.concat([df1,df2],axis=0)
         print(df.head())
         myColors = {"sps":"blue","ds":"orange"}
@@ -1687,7 +1687,7 @@ if mode == "posPDR_new":
     street2_node = STREET_D_NODE.keys()
     for i in range(0,1):
         #sps rri=1ms
-        s = "./results/sps_smooth2.csv"
+        s = "./results/pro1.1_smooth2_rri100.csv"
         with open(s) as f:
             reader = csv.reader(f)
             for row in reader:
@@ -1904,7 +1904,7 @@ if mode == "posPDR_new":
             
         
         #ds
-        s = "./results/ds_smooth2.csv"
+        s = "./results/sps_smooth2_rri100.csv"
         with open(s) as f:
             reader = csv.reader(f)
             for row in reader:
@@ -2361,8 +2361,8 @@ if mode == "posPDR_new":
         plt.savefig(mode+"_"+option, dpi=300)
 
 if mode == "grantBreakCount":
-    ss="./results/sps_smooth2.csv"
-    sd="./results/ds_smooth2.csv"
+    ss="./results/sps_smooth2_rri100.csv"
+    sd="./results/pro1.1_smooth2_rri100.csv"
 
     timeRange_a={}
     timeRange_b={}
@@ -2384,23 +2384,23 @@ if mode == "grantBreakCount":
     with open(ss) as f:
         reader = csv.reader(f)
         for row in reader:
-            if row[1] == "vector" and row[3] == "grantBreakTiming:vector":
+            if row[1] == "vector" and row[3] == "tbFailedDueToInterferenceIgnoreSCI:vector":
                 vehicle = re.split("[\[\]]",row[2])[1]
                 times = re.split(" ",row[7])
                 array = re.split(" ",row[8])
-                for j in range(times):
+                for j in range(len(times)):
                     if (vehicle in INTERSECTION_A_NODE.keys()
                             ):
-                        count_i += array[j]
+                        count_i += int(array[j])
                     if (vehicle in INTERSECTION_B_NODE.keys()
                             ):
-                        count_i2 += array[j]
+                        count_i2 += int(array[j])
                     if (vehicle in STREET_C_NODE.keys()
                             ):
-                        count_s += array[j]
+                        count_s += int(array[j])
                     if (vehicle in STREET_D_NODE.keys()
                             ):
-                        count_s2 += array[j]
+                        count_s2 += int(array[j])
     
     print("sps: count i:" + str(count_i) + ", count i2:" + str(count_i2) + ", count s:" + str(count_s) + ", count s2:" + str(count_s2))
     count_i=0
@@ -2410,23 +2410,23 @@ if mode == "grantBreakCount":
     with open(sd) as f:
         reader = csv.reader(f)
         for row in reader:
-            if row[1] == "vector" and row[3] == "grantBreakTiming:vector":
+            if row[1] == "vector" and row[3] == "tbFailedDueToInterferenceIgnoreSCI:vector":
                 vehicle = re.split("[\[\]]",row[2])[1]
                 times = re.split(" ",row[7])
                 array = re.split(" ",row[8])
-                for j in range(times):
+                for j in range(len(times)):
                     if (vehicle in INTERSECTION_A_NODE.keys()
                             ):
-                        count_i += array[j]
+                        count_i += int(array[j])
                     if (vehicle in INTERSECTION_B_NODE.keys()
                             ):
-                        count_i2 += array[j]
+                        count_i2 += int(array[j])
                     if (vehicle in STREET_C_NODE.keys()
                             ):
-                        count_s += array[j]
+                        count_s += int(array[j])
                     if (vehicle in STREET_D_NODE.keys()
                             ):
-                        count_s2 += array[j]
+                        count_s2 += int(array[j])
     
     print("ds: count i:" + str(count_i) + ", count i2:" + str(count_i2) + ", count s:" + str(count_s) + ", count s2:" + str(count_s2))
 

@@ -961,15 +961,16 @@ if mode == "cam_pos":
     # intersection a : [9475.0,9725.0,14575.0,14825.0]
     # street c : [9500.0,9600.0,14160.0,14510.0]
     # street d : [9670.0,10270.0,14670.0,14750.0]
-    intersection_pos = [9475.0,9725.0,14575.0,14825.0]
-    # intersection_pos = [9475.0,9725.0,14575.0,14825.0]
+    # intersection_pos = [9475.0,9725.0,14575.0,14825.0]#a
+    intersection_pos = [9475.0,9615.0,13985.0,14125.0]#b
     # intersection_pos = [0.0,1000.0,0.0,1000.0]
     
     # street_pos = [0.0,1000.0,0.0,1000.0]
-    street_pos = [9670.0,10270.0,14670.0,14750.0]
-    s = "results/sps_smoothCarve.csv"
-    s_i = "results/intesection_a_sps.csv"
-    s_s= "results/street_d_sps.csv"
+    street_pos = [9500.0,9600.0,14160.0,14510.0]#c
+    #street_pos = [9670.0,10270.0,14670.0,14750.0] #d
+    s = "results/sps_smooth2_rri100.csv"
+    s_i = "results/intersection_b_test.csv"
+    s_s= "results/street_c_test.csv"
     csv_i =[]
     csv_s = []
     poses_i={}
@@ -1049,7 +1050,7 @@ if mode == "cam_pos":
         for row in reader:
             if row[1] == "vector" and row[3]== "camVehicleId:vector":
                 vehicle = re.split("[\[\]]",row[2])[1]
-                nodeID = re.split(" ",row[8])[1]
+                nodeID = re.split(" ",row[8])[0]
                 target = "node_" + vehicle+"_"
                 filter_poses_i = dict(filter(lambda vh:target in vh[0],poses_i.items()))
                 filter_poses_s = dict(filter(lambda vh:target in vh[0],poses_s.items()))
@@ -1194,7 +1195,7 @@ if mode == "posPDR_new":
     # left = ["interjunction","street"]
     for i in range(0,1):
         #sps
-        s = "./results/sps_smooth2.csv"
+        s = "./results/pro1.1_smooth2_rri100.csv"
         marginX = 0
         marginY=0
         # 位置情報をnodeIDごとにまとめる
@@ -1425,7 +1426,7 @@ if mode == "posPDR_new":
             
         
         #ds
-        s = "./results/ds_smooth2.csv"
+        s = "./results/sps_smooth2_rri100.csv"
         marginX = 0
         marginY=0
         node_pos={}
@@ -1657,14 +1658,14 @@ if mode == "posPDR_new":
         fig, ax = plt.subplots()
         
 
-        ax.plot(distances, pdrs_i, label="sps,intersection a", color="blue")
-        ax.plot(distances, pdrs_i2, label="sps,intersection b",color="green")
-        ax.plot(distances, pdrs_s, label="sps,street c",color="orange")
-        ax.plot(distances, pdrs_s2, label="sps,street d",color="red")
-        ax.plot(distances, pdrs2_i,":", label="ds,intersection a",color="blue")
-        ax.plot(distances, pdrs2_i2,":", label="ds,intersection b",color="green")
-        ax.plot(distances, pdrs2_s,":", label="ds,street c",color="orange")
-        ax.plot(distances, pdrs2_s2,":", label="ds,street d",color="red")
+        ax.plot(distances, pdrs_i, label="proposal,intersection a", color="blue")
+        ax.plot(distances, pdrs_i2, label="proposal,intersection b",color="green")
+        ax.plot(distances, pdrs_s, label="proposal,street c",color="orange")
+        ax.plot(distances, pdrs_s2, label="proposal,street d",color="red")
+        ax.plot(distances, pdrs2_i,":", label="sps,intersection a",color="blue")
+        ax.plot(distances, pdrs2_i2,":", label="sps,intersection b",color="green")
+        ax.plot(distances, pdrs2_s,":", label="sps,street c",color="orange")
+        ax.plot(distances, pdrs2_s2,":", label="sps,street d",color="red")
         
 
 

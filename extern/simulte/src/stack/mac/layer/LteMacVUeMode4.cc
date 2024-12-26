@@ -737,8 +737,8 @@ void LteMacVUeMode4::handleSelfMessage()
         {
             // Gotten to the point of the final tranmission must determine if we reselect or not.
             double randomReReserve = dblrand(1);
-            if (nodeId_ == 1026) 
-                cout << NOW << " --expirationCounter_ == mode4Grant->getPeriod() randomReReserve:" << randomReReserve << " expirationCounter_:" << expirationCounter_ << endl;//test by ryu
+            // if (nodeId_ == 1026) 
+            //     cout << NOW << " --expirationCounter_ == mode4Grant->getPeriod() randomReReserve:" << randomReReserve << " expirationCounter_:" << expirationCounter_ << endl;//test by ryu
             if (randomReReserve < probResourceKeep_)
             {
                 int expiration = 0;
@@ -762,8 +762,8 @@ void LteMacVUeMode4::handleSelfMessage()
         }
         if (--periodCounter_>0 && !mode4Grant->getFirstTransmission())
         {
-            if (nodeId_ == 1026) 
-                cout << NOW << " --periodCounter_>0 && !mode4Grant->getFirstTransmission(), periodCounter_:" << periodCounter_ << endl;//test by ryu
+            // if (nodeId_ == 1026) 
+            //     cout << NOW << " --periodCounter_>0 && !mode4Grant->getFirstTransmission(), periodCounter_:" << periodCounter_ << endl;//test by ryu
             return;
         }
         else if (expirationCounter_ > 0)
@@ -781,13 +781,12 @@ void LteMacVUeMode4::handleSelfMessage()
             std::string nodeID_str = std::to_string(nodeId_n);
             auto index = createIndex(f1);
             auto index2 = createIndex(f2);
-            if(judgeTChange(index2,searchByIdUsingIndex(index,nodeID_str))){
-                // if t_change , this transmittion make last sps frame
-                if (nodeId_ == 1026){
-                    std::cout << NOW << ", TChange!" << "\n";
-                }
-                expirationCounter_ = 2*mode4Grant->getPeriod();
+            std::string searchResult = searchByIdUsingIndex(index, nodeID_str);
+            if (!searchResult.empty() && judgeTChange(index2, searchResult, periodCounter_ * 0.001)) {
+                // If t_change, this transmission makes the last SPS frame
+                expirationCounter_ = 2 * mode4Grant->getPeriod();
             }
+        
             //end ryu
         }
         else if (expirationCounter_ <= 0)
@@ -890,8 +889,8 @@ void LteMacVUeMode4::handleSelfMessage()
 
             if (!sent)
             {
-                if (nodeId_ == 1026) 
-                    cout << "!sent" << endl;//test by ryu
+                // if (nodeId_ == 1026) 
+                //     cout << "!sent" << endl;//test by ryu
             
                 macPduMake();
             }
@@ -1471,7 +1470,7 @@ std::unordered_map<std::string, std::string> LteMacVUeMode4::createIndex(std::st
     return index;
 }
 
-std::string& LteMacVUeMode4::searchByIdUsingIndex(std::unordered_map<std::string, std::string>& index, std::string& targetId) {
+std::string LteMacVUeMode4::searchByIdUsingIndex(std::unordered_map<std::string, std::string>& index, std::string& targetId) {
     auto it = index.find(targetId);
     if (it != index.end()) {
         // std::cout << "Found: " << it->second << std::endl;
@@ -1484,15 +1483,14 @@ std::string& LteMacVUeMode4::searchByIdUsingIndex(std::unordered_map<std::string
             // std::cout << item << std::endl;
             result.push_back(item);
         }
-        std::cout << result[1]  << std::endl;
+        // std::cout << result[1]  << std::endl;
         return result[1];
     } else {
         std::cout << "ID " << targetId << " not found in index." << std::endl;
-        std::string s = "";
-        return s;
+        return "";
     }
 }
-bool LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& index, std::string& targetId) {
+bool LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& index, std::string& targetId, float interval) {
     auto it = index.find(targetId);
     if (it != index.end()) {
         // std::cout << "Found: " << it->second << std::endl;
@@ -1502,9 +1500,10 @@ bool LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& 
         char c = ',';
 
         while (std::getline(ss, item, c)) {
+            // std::cout << item << std::endl;
             result.push_back(item);
         }
-        return result[1] == "1";
+        return result[1] == "1" && std::stof(result[2])>interval;
     } else {
         std::cout << "ID " << targetId << " not found in index." << std::endl;
         return false;
