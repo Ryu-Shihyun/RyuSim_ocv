@@ -258,7 +258,7 @@ def count_el_and_total_d(s,target,timeRange,NODE,senderID):
     print("total i:" + str(total[0]) + ", total i2:" + str(total[1]) + ", total s:" + str(total[2]) + ", total s2:" + str(total[3]))
     
 if mode == "traffic_pdr":
-    ss = "./results/sps_smooth2_rri300.csv"
+    ss = "./results/pro1.4_smooth2_rri100.csv"
     ss2 = "./results/sps_smooth2_rri100.csv"
     span = 5
     if len(args)>=6:
@@ -301,17 +301,17 @@ if mode == "traffic_pdr":
         print(s)
         make_data(x_data[s],x_result[s],y_decode_data[s],y_total_data[s],y_result[s])
 
-    ax.scatter(x_result[ss][0][1:], y_result[ss][0][1:], marker="o", c="blue",label="sps_rri300_a")
-    ax.scatter(x_result[ss2][0][1:], y_result[ss2][0][1:], marker="+", c="blue",label="sps_rri100_a")
+    ax.scatter(x_result[ss][0][1:], y_result[ss][0][1:], marker="o", c="blue",label="pro_a")
+    ax.scatter(x_result[ss2][0][1:], y_result[ss2][0][1:], marker="+", c="blue",label="sps_a")
     ax.scatter(x_result[sd][0][1:], y_result[sd][0][1:],marker="x", c="aqua",label="ds_a")
-    ax.scatter(x_result[ss][1][1:], y_result[ss][1][1:], marker="o", c="green",label="sps_rri300_b")
-    ax.scatter(x_result[ss2][1][1:], y_result[ss2][1][1:], marker="+", c="green",label="sps_rri100_b")
+    ax.scatter(x_result[ss][1][1:], y_result[ss][1][1:], marker="o", c="green",label="pro_b")
+    ax.scatter(x_result[ss2][1][1:], y_result[ss2][1][1:], marker="+", c="green",label="sps_b")
     ax.scatter(x_result[sd][1][1:], y_result[sd][1][1:],marker="x", c="palegreen",label="ds_b")
-    ax.scatter(x_result[ss][2][1:], y_result[ss][2][1:], marker="o", c="red",label="sps_rri300_c")
-    ax.scatter(x_result[ss2][2][1:], y_result[ss2][2][1:], marker="+", c="red",label="sps_rri100_c")
+    ax.scatter(x_result[ss][2][1:], y_result[ss][2][1:], marker="o", c="red",label="pro_c")
+    ax.scatter(x_result[ss2][2][1:], y_result[ss2][2][1:], marker="+", c="red",label="sps_c")
     ax.scatter(x_result[sd][2][1:], y_result[sd][2][1:],marker="x", c="violet",label="ds_c")
-    ax.scatter(x_result[ss][3][1:], y_result[ss][3][1:], marker="o", c="orange",label="sps_rri300_d")
-    ax.scatter(x_result[ss2][3][1:], y_result[ss2][3][1:], marker="+", c="orange",label="sps_rri100_d")
+    ax.scatter(x_result[ss][3][1:], y_result[ss][3][1:], marker="o", c="orange",label="pro_d")
+    ax.scatter(x_result[ss2][3][1:], y_result[ss2][3][1:], marker="+", c="orange",label="sps_d")
     ax.scatter(x_result[sd][3][1:], y_result[sd][3][1:],marker="x", c="yellow",label="ds_d")
     ax.plot(x_result[ss][0][1:], np.poly1d(np.polyfit(x_result[ss][0][1:], y_result[ss][0][1:], 1))(x_result[ss][0][1:]),c="blue")
     ax.plot(x_result[ss2][0][1:], np.poly1d(np.polyfit(x_result[ss2][0][1:], y_result[ss2][0][1:], 1))(x_result[ss2][0][1:]),":",c="blue")

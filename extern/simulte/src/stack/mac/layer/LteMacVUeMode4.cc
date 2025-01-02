@@ -738,7 +738,7 @@ void LteMacVUeMode4::handleSelfMessage()
             // Gotten to the point of the final tranmission must determine if we reselect or not.
             double randomReReserve = dblrand(1);
             // if (nodeId_ == 1026) 
-            //     cout << NOW << " --expirationCounter_ == mode4Grant->getPeriod() randomReReserve:" << randomReReserve << " expirationCounter_:" << expirationCounter_ << endl;//test by ryu
+            cout << NOW << " --expirationCounter_ == mode4Grant->getPeriod() randomReReserve:" << randomReReserve << " expirationCounter_:" << expirationCounter_ << endl;//test by ryu
             if (randomReReserve < probResourceKeep_)
             {
                 int expiration = 0;
@@ -770,9 +770,10 @@ void LteMacVUeMode4::handleSelfMessage()
         {
             // resetting grant period
             periodCounter_=mode4Grant->getPeriod();
+            cout << NOW << ", nodeID:" << nodeId_ <<" expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
             // this is periodic grant TTI - continue with frame sending
-            if (nodeId_ == 1026) 
-                cout << NOW << " expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
+            // if (nodeId_ == 1026) 
+            //     cout << NOW << " expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
              //start ryu
             // t_changeを確認する
             std::string f1 = "parameter_nodeID.data";
@@ -784,7 +785,11 @@ void LteMacVUeMode4::handleSelfMessage()
             std::string searchResult = searchByIdUsingIndex(index, nodeID_str);
             if (!searchResult.empty() && judgeTChange(index2, searchResult, periodCounter_ * 0.001)) {
                 // If t_change, this transmission makes the last SPS frame
-                expirationCounter_ = 2 * mode4Grant->getPeriod();
+                cout << NOW << ", nodeID:" << nodeId_ <<" T_change" << endl;//test by ryu
+                expirationCounter_ = 0;
+                mode4Grant->setExpiration(0);
+                expiredGrant_ = true;
+                
             }
         
             //end ryu
@@ -890,7 +895,7 @@ void LteMacVUeMode4::handleSelfMessage()
             if (!sent)
             {
                 // if (nodeId_ == 1026) 
-                //     cout << "!sent" << endl;//test by ryu
+                cout << NOW << ",nodeID:" << nodeId_<< ",!sent" << endl;//test by ryu
             
                 macPduMake();
             }
@@ -1503,7 +1508,7 @@ bool LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& 
             // std::cout << item << std::endl;
             result.push_back(item);
         }
-        return result[1] == "1" && std::stof(result[2])>interval;
+        return !(result[1] == "0" && abs(std::stof(result[2])-interval) < 0.1);
     } else {
         std::cout << "ID " << targetId << " not found in index." << std::endl;
         return false;

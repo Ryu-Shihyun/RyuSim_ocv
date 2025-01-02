@@ -25,6 +25,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <unordered_map>
+#include <cmath>
 
 
 namespace artery
@@ -164,17 +165,17 @@ void CaService::checkTriggeringConditions(const SimTime& T_now)
 	if (T_elapsed >= T_GenCamFinal & T_now > startUpTime) {
 		if (mFixedRate || mExponentialNonPeriodic) {
 			sendCam(T_now);
-			// updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
+			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
 			
 		}  else if (checkHeadingDelta(T_now) || checkPositionDelta(T_now) || checkSpeedDelta(T_now)) {
 			sendCam(T_now);
 			T_GenCam = std::min(T_elapsed, T_GenCamMax); /*< if middleware update interval is too long */
 			mGenCamLowDynamicsCounter = 0;
-			// updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
+			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
 			
 		} else if (T_elapsed >= T_GenCam) {
 			sendCam(T_now);
-			// updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
+			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
 
 			if (++mGenCamLowDynamicsCounter >= mGenCamLowDynamicsLimit) {
 				T_GenCam = T_GenCamMax;
@@ -422,7 +423,7 @@ void CaService::updateCSVWithIndex(std::string& filename,  uint32_t id,  bool is
         file.seekp(index[id_str]);
         std::getline(file, line); // 更新対象の行を読み飛ばす
         file.seekp(index[id_str]);    // 再度位置を調整
-        file << id_str << ","<< int_ischange << "," << mGenCam.dbl() << "\n"; //
+        file << id_str << ","<< int_ischange << "," << std::round(mGenCam.dbl()*100.0)/100.0 << "\n"; //
 
         file.close();
     } else {
@@ -432,7 +433,7 @@ void CaService::updateCSVWithIndex(std::string& filename,  uint32_t id,  bool is
             std::cerr << "Failed to open file for appending. at CaService" << std::endl;
             return;
         }
-        outFile << id_str << "," << int_ischange << "," << mGenCam.dbl() << "\n";
+        outFile << id_str << "," << int_ischange << "," << std::round(mGenCam.dbl()*100.0)/100.0 << "\n";
         outFile.close();
     }
 }
@@ -462,7 +463,7 @@ bool CaService::calculateTChange()
 		// if ( mVehicleDataProvider->station_id() == 846930886){ // added by ryu
 		// 	std::cout << simTime()  << ", T_change is" <<(mGenCamMax.dbl() >time_change_a ||mGenCamMax.dbl() > time_change_v || mGenCamMax.dbl() > time_change_p) << ",time_change_a:" << time_change_a  << ",time_change_v:" << time_change_v  << ",time_change_p:" << time_change_p  << std::endl; 
 		// }
-		return (time_e >time_change_a ||time_e > time_change_v || time_e > time_change_p);
+		return (abs(time_e - time_change_a) < 0.1 || abs(time_e - time_change_v <0.1) || abs(time_e - time_change_p <0.1));
 	}
 
 

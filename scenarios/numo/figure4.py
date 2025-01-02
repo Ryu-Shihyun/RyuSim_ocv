@@ -712,10 +712,10 @@ if mode in ["pdrDistance", "0", "1","2"]:
     save = mode
     l =""
     yl = ""
-    csv_s10 ="results/intersection_sps_rri100.csv"
-    csv_s50 ="results/intersection_pro_rri100.csv"
-    csv_s100 ="results/intersection_pro1.1_rri100.csv"
-    csv_d = 'results/intersection_0.2.ds.csv'
+    csv_s10 ="results/test_0.3_sps.csv"
+    csv_s50 ="results/test_0.3_pro1.1.csv"
+    csv_s100 ="results/test_0.3_pro1.4.csv"
+    csv_d = 'results/test_0.3_ds.csv'
     pdr_vector = ""
     if mode=="pdrDistance":
         pdr_vector = 'tbDecoded:vector'
@@ -742,10 +742,10 @@ if mode in ["pdrDistance", "0", "1","2"]:
     fig, ax = plt.subplots()
         
 
-    ax.plot(Pdr_Distance_Distances, pdr10,"o-", label="sps,rri=300ms",c="blue")
-    ax.plot(Pdr_Distance_Distances, pdr50,"o-", label="pro1",c="navy")
-    ax.plot(Pdr_Distance_Distances, pdr100,"o-", label="pro1.1",c="aqua")
-    # ax.plot(Pdr_Distance_Distances, pdrD,"o-", label="ds",c="orange")
+    ax.plot(Pdr_Distance_Distances, pdr10,"o-", label="sps",c="blue")
+    ax.plot(Pdr_Distance_Distances, pdr50,"o-", label="pro1.1",c="navy")
+    ax.plot(Pdr_Distance_Distances, pdr100,"o-", label="pro1.3",c="aqua")
+    ax.plot(Pdr_Distance_Distances, pdrD,"o-", label="ds",c="orange")
     
 
 
@@ -756,7 +756,7 @@ if mode in ["pdrDistance", "0", "1","2"]:
     ax.set_xlim([0, (max(Pdr_Distance_Distances) + 1)])
     # ax.set_ylim([0, 101])
     plt.xticks(np.arange(0, (max(Pdr_Distance_Distances))+50, step=50))
-    plt.yticks(np.arange(0, (101), step=10))
+    plt.yticks(np.arange(60, (101), step=10))
 
 
 
