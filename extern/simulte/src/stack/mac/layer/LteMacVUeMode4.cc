@@ -641,13 +641,16 @@ void LteMacVUeMode4::handleMessage(cMessage *msg)
             if (schedulingGrant_ == NULL)
             {
                 // if (nodeId_ == 1026) 
-                    // std::cout << NOW << " schedulingGrant_ == NULL "  << endl; //test by ryu
+                //start ryu
+                cout << NOW << ", nodeId:" << nodeId_ << ", macGenerateSchedulingGrant, handleMessage, schedulingGrant_==NULL"<< endl;
+                //end ryu
+            
                 macGenerateSchedulingGrant(remainingTime_, lteInfo->getPriority(), pkt->getBitLength());
             }
             else if ((schedulingGrant_ != NULL && periodCounter_ > remainingTime_))
             {
                 // if (nodeId_ == 1026) 
-                    // std::cout << NOW << " (schedulingGrant_ != NULL && periodCounter_ > remainingTime_) "  << endl; //test by ryu
+                cout << NOW << ", nodeId:" << nodeId_ << ", macGenerateSchedulingGrant, handleMessage, (schedulingGrant_ != NULL && periodCounter_ > remainingTime_)"<< endl;//test by ryu
                 emit(grantBreakTiming, 1);
                 delete schedulingGrant_;
                 schedulingGrant_ = NULL;
@@ -738,7 +741,7 @@ void LteMacVUeMode4::handleSelfMessage()
             // Gotten to the point of the final tranmission must determine if we reselect or not.
             double randomReReserve = dblrand(1);
             // if (nodeId_ == 1026) 
-            cout << NOW << " --expirationCounter_ == mode4Grant->getPeriod() randomReReserve:" << randomReReserve << " expirationCounter_:" << expirationCounter_ << endl;//test by ryu
+            cout << NOW << ", nodeId:" << nodeId_<< ", --expirationCounter_ == mode4Grant->getPeriod() randomReReserve:" << randomReReserve << " expirationCounter_:" << expirationCounter_ << endl;//test by ryu
             if (randomReReserve < probResourceKeep_)
             {
                 int expiration = 0;
@@ -763,7 +766,7 @@ void LteMacVUeMode4::handleSelfMessage()
         if (--periodCounter_>0 && !mode4Grant->getFirstTransmission())
         {
             // if (nodeId_ == 1026) 
-            //     cout << NOW << " --periodCounter_>0 && !mode4Grant->getFirstTransmission(), periodCounter_:" << periodCounter_ << endl;//test by ryu
+            cout << NOW << " --periodCounter_>0 && !mode4Grant->getFirstTransmission(), periodCounter_:" << periodCounter_ << endl;//test by ryu
             return;
         }
         else if (expirationCounter_ > 0)
@@ -776,21 +779,21 @@ void LteMacVUeMode4::handleSelfMessage()
             //     cout << NOW << " expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
              //start ryu
             // t_changeを確認する
-            std::string f1 = "parameter_nodeID.data";
-            std::string f2 = "parameter.data";
-            int nodeId_n = nodeId_ - 1025;
-            std::string nodeID_str = std::to_string(nodeId_n);
-            auto index = createIndex(f1);
-            auto index2 = createIndex(f2);
-            std::string searchResult = searchByIdUsingIndex(index, nodeID_str);
-            if (!searchResult.empty() && judgeTChange(index2, searchResult, periodCounter_ * 0.001)) {
-                // If t_change, this transmission makes the last SPS frame
-                cout << NOW << ", nodeID:" << nodeId_ <<" T_change" << endl;//test by ryu
-                expirationCounter_ = 0;
-                mode4Grant->setExpiration(0);
-                expiredGrant_ = true;
+            // std::string f1 = "parameter_nodeID.data";
+            // std::string f2 = "parameter.data";
+            // int nodeId_n = nodeId_ - 1025;
+            // std::string nodeID_str = std::to_string(nodeId_n);
+            // auto index = createIndex(f1);
+            // auto index2 = createIndex(f2);
+            // std::string searchResult = searchByIdUsingIndex(index, nodeID_str);
+            // if (!searchResult.empty() && judgeTChange(index2, searchResult, periodCounter_ * 0.001)) {
+            //     // If t_change, this transmission makes the last SPS frame
+            //     cout << NOW << ", nodeID:" << nodeId_ <<" T_change" << endl;//test by ryu
+            //     expirationCounter_ = 0;
+            //     mode4Grant->setExpiration(0);
+            //     expiredGrant_ = true;
                 
-            }
+            // }
         
             //end ryu
         }
@@ -896,7 +899,7 @@ void LteMacVUeMode4::handleSelfMessage()
             {
                 // if (nodeId_ == 1026) 
                 cout << NOW << ",nodeID:" << nodeId_<< ",!sent" << endl;//test by ryu
-            
+
                 macPduMake();
             }
 
@@ -1210,7 +1213,9 @@ void LteMacVUeMode4::macGenerateSchedulingGrant(double maximumLatency, int prior
         emit(rriValue,0);
 
     } else {
-
+        //start ryu
+        cout << NOW << ", nodeId:" << nodeId_ << ", macGenerateSchedulingGrant, pktSize:" << pktSize << endl;
+        //end ryu
         mode4Grant -> setPeriodic(true);
         // Based on restrictResourceReservation interval But will be between 1 and 15
         // Again technically this needs to reconfigurable as well. But all of that needs to come in through ini and such.
@@ -1403,6 +1408,10 @@ void LteMacVUeMode4::flushHarqBuffers()
                         {
                             emit(droppedTimeout, 1);
                             selectedProcess->forceDropProcess();
+                            //start ryu
+                            cout << NOW << ", nodeId:" << nodeId_ << ", flushHarqBuffers, droppedTimeout"<< endl;
+                            //end ryu
+        
                             delete schedulingGrant_;
                             schedulingGrant_ = NULL;
                         }
@@ -1410,6 +1419,10 @@ void LteMacVUeMode4::flushHarqBuffers()
                         {
                             delete schedulingGrant_;
                             schedulingGrant_ = NULL;
+                            //start ryu
+                            cout << NOW << ", nodeId:" << nodeId_ << ", macGenerateSchedulingGrant, flushHarqBuffers, delete schedulingGrant_"<< endl;
+                            //end ryu
+        
                             macGenerateSchedulingGrant(remainingTime_, priority, pduLength);
                         }
                     }
@@ -1426,8 +1439,14 @@ void LteMacVUeMode4::flushHarqBuffers()
             if (missedTransmissions_ >= reselectAfter_)
             {
                 // Simply remove the grant next time we shall reschedule it.
-                delete schedulingGrant_;
-                schedulingGrant_ = NULL;
+                //start ryu
+                cout << NOW << ", nodeId:" << nodeId_ << ", missedTransmission, delete schedulingGrant_"<< endl;
+                //失敗した時にschedulegrantをnullにする
+                //expiredGrantしたときもここをとおる
+                //end ryu
+        
+                // delete schedulingGrant_;
+                // schedulingGrant_ = NULL;
                 missedTransmissions_ = 0;
 
                 emit(grantBreakMissedTrans, 1);
@@ -1436,6 +1455,10 @@ void LteMacVUeMode4::flushHarqBuffers()
     }
     if (expiredGrant_) {
         // Grant has expired, only generate new grant on receiving next message to be sent.
+        //start ryu
+        cout << NOW << ", nodeId:" << nodeId_ << ", expiredGrant_, delete schedulingGrant_"<< endl;
+        //end ryu
+        
         delete schedulingGrant_;
         schedulingGrant_ = NULL;
         expiredGrant_ = false;

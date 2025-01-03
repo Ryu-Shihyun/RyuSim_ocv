@@ -72,8 +72,37 @@ def make_timerange(sa,sb,sc,sd,data):
                 else:
                     data[index][node] = [float(row[2]),float(row[2])]
         index += 1
+
+def data_tbSent(row,x_data,NODE,timeRange,startTime,span):
+    if row[1] == "vector" and row[3] == "tbSent:vector":
+        vehicle = re.split("[\[\]]",row[2])[1]
+        times = re.split(" ",row[7])
+        array = re.split(" ",row[8])
+        for j in range(len(times)):
+            # 時間内のものだけを入れる
+            if (vehicle in NODE[0].keys() 
+                and float(times[j]) >= timeRange[0][vehicle][0] 
+                and float(times[j]) <= timeRange[0][vehicle][1] + 0.2):
+                x_data[0][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
+
+            if (vehicle in NODE[1].keys() 
+                and float(times[j]) >= timeRange[1][vehicle][0] 
+                and float(times[j]) <= timeRange[1][vehicle][1] + 0.2):
+                x_data[1][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
+
+            if (vehicle in NODE[2].keys() 
+                and float(times[j]) >= timeRange[2][vehicle][0] 
+                and float(times[j]) <= timeRange[2][vehicle][1] + 0.2):
+                x_data[2][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
+
+            if (vehicle in NODE[3].keys() 
+                and float(times[j]) >= timeRange[3][vehicle][0] 
+                and float(times[j]) <= timeRange[3][vehicle][1] + 0.2):
+                x_data[3][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
     
-def make_traffic_pdr(s,timeRange,y_decode_data,y_total_data,x_data,senderID,NODE):
+
+
+def make_traffic_pdr(s,timeRange,y_decode_data,y_total_data,x_data,senderID,NODE,startTime,span):
     with open(s) as f:
         reader = csv.reader(f)
         for row in reader:
@@ -82,31 +111,32 @@ def make_traffic_pdr(s,timeRange,y_decode_data,y_total_data,x_data,senderID,NODE
                 vehicle = re.split("[\[\]]",row[2])[1]
                 if vehicle not in NODE[0].keys() and vehicle not in NODE[1].keys() and vehicle not in NODE[2].keys() and vehicle not in NODE[3].keys():
                     continue
-            if row[1] == "vector" and row[3] == "tbSent:vector":
-                vehicle = re.split("[\[\]]",row[2])[1]
-                times = re.split(" ",row[7])
-                array = re.split(" ",row[8])
-                for j in range(len(times)):
-                    # 時間内のものだけを入れる
-                    if (vehicle in NODE[0].keys() 
-                        and float(times[j]) >= timeRange[0][vehicle][0] 
-                        and float(times[j]) <= timeRange[0][vehicle][1] + 0.2):
-                        x_data[0][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
+            # if row[1] == "vector" and row[3] == "tbSent:vector":
+            #     vehicle = re.split("[\[\]]",row[2])[1]
+            #     times = re.split(" ",row[7])
+            #     array = re.split(" ",row[8])
+            #     for j in range(len(times)):
+            #         # 時間内のものだけを入れる
+            #         if (vehicle in NODE[0].keys() 
+            #             and float(times[j]) >= timeRange[0][vehicle][0] 
+            #             and float(times[j]) <= timeRange[0][vehicle][1] + 0.2):
+            #             x_data[0][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
 
-                    if (vehicle in NODE[1].keys() 
-                        and float(times[j]) >= timeRange[1][vehicle][0] 
-                        and float(times[j]) <= timeRange[1][vehicle][1] + 0.2):
-                        x_data[1][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
+            #         if (vehicle in NODE[1].keys() 
+            #             and float(times[j]) >= timeRange[1][vehicle][0] 
+            #             and float(times[j]) <= timeRange[1][vehicle][1] + 0.2):
+            #             x_data[1][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
 
-                    if (vehicle in NODE[2].keys() 
-                        and float(times[j]) >= timeRange[2][vehicle][0] 
-                        and float(times[j]) <= timeRange[2][vehicle][1] + 0.2):
-                        x_data[2][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
+            #         if (vehicle in NODE[2].keys() 
+            #             and float(times[j]) >= timeRange[2][vehicle][0] 
+            #             and float(times[j]) <= timeRange[2][vehicle][1] + 0.2):
+            #             x_data[2][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
 
-                    if (vehicle in NODE[3].keys() 
-                        and float(times[j]) >= timeRange[3][vehicle][0] 
-                        and float(times[j]) <= timeRange[3][vehicle][1] + 0.2):
-                        x_data[3][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
+            #         if (vehicle in NODE[3].keys() 
+            #             and float(times[j]) >= timeRange[3][vehicle][0] 
+            #             and float(times[j]) <= timeRange[3][vehicle][1] + 0.2):
+            #             x_data[3][int((float(times[j]) - startTime) / span)] += 190 * 8 / span * int(array[j])
+            data_tbSent(row,x_data,NODE,timeRange,startTime,span)
             if row[1] == "vector" and row[3] == "tbDecoded:vector":
                 vehicle = re.split("[\[\]]",row[2])[1]
                 times = re.split(" ",row[7])
@@ -257,6 +287,123 @@ def count_el_and_total_d(s,target,timeRange,NODE,senderID):
     print("count i:" + str(count_i) + ", count i2:" + str(count_i2) + ", count s:" + str(count_s) + ", count s2:" + str(count_s2))
     print("total i:" + str(total[0]) + ", total i2:" + str(total[1]) + ", total s:" + str(total[2]) + ", total s2:" + str(total[3]))
     
+
+
+def data_tbSent_node(row,x_data,NODE,timeRange):
+    if row[1] == "vector" and row[3] == "tbSent:vector":
+        vehicle = re.split("[\[\]]",row[2])[1]
+        times = re.split(" ",row[7])
+        array = re.split(" ",row[8])    
+        for j in range(len(times)):
+            # 時間内のものだけを入れる
+            if (vehicle in NODE[0].keys() 
+                and float(times[j]) >= timeRange[0][vehicle][0] 
+                and float(times[j]) <= timeRange[0][vehicle][1] + 0.2):
+                if vehicle not in x_data[0]:
+                    x_data[0][vehicle] = []
+                x_data[0][vehicle].append(float(times[j]))
+
+            if (vehicle in NODE[1].keys() 
+                and float(times[j]) >= timeRange[1][vehicle][0] 
+                and float(times[j]) <= timeRange[1][vehicle][1] + 0.2):
+                if vehicle not in x_data[1]:
+                    x_data[1][vehicle] = []
+                x_data[1][vehicle].append(float(times[j]))
+
+            if (vehicle in NODE[2].keys() 
+                and float(times[j]) >= timeRange[2][vehicle][0] 
+                and float(times[j]) <= timeRange[2][vehicle][1] + 0.2):
+                if vehicle not in x_data[2]:
+                    x_data[2][vehicle] = []
+                x_data[2][vehicle].append(float(times[j]))
+
+            if (vehicle in NODE[3].keys() 
+                and float(times[j]) >= timeRange[3][vehicle][0] 
+                and float(times[j]) <= timeRange[3][vehicle][1] + 0.2):
+                if vehicle not in x_data[3]:
+                    x_data[3][vehicle] = []
+                x_data[3][vehicle].append(float(times[j]))
+
+def data_subchannel(row,x_data,NODE,timeRange):
+    if row[1] == "vector" and row[3] == "subchannelSent:vector":
+        vehicle = re.split("[\[\]]",row[2])[1]
+        times = re.split(" ",row[7])
+        array = re.split(" ",row[8])    
+        for j in range(len(times)):
+            # 時間内のものだけを入れる
+            if (vehicle in NODE[0].keys() 
+                and float(times[j]) >= timeRange[0][vehicle][0] 
+                and float(times[j]) <= timeRange[0][vehicle][1] + 0.2):
+                if vehicle not in x_data[0]:
+                    x_data[0][vehicle] = []
+                x_data[0][vehicle].append(int(array[j]))
+
+            if (vehicle in NODE[1].keys() 
+                and float(times[j]) >= timeRange[1][vehicle][0] 
+                and float(times[j]) <= timeRange[1][vehicle][1] + 0.2):
+                if vehicle not in x_data[1]:
+                    x_data[1][vehicle] = []
+                x_data[1][vehicle].append(int(array[j]))
+
+            if (vehicle in NODE[2].keys() 
+                and float(times[j]) >= timeRange[2][vehicle][0] 
+                and float(times[j]) <= timeRange[2][vehicle][1] + 0.2):
+                if vehicle not in x_data[2]:
+                    x_data[2][vehicle] = []
+                x_data[2][vehicle].append(int(array[j]))
+
+            if (vehicle in NODE[3].keys() 
+                and float(times[j]) >= timeRange[3][vehicle][0] 
+                and float(times[j]) <= timeRange[3][vehicle][1] + 0.2):
+                if vehicle not in x_data[3]:
+                    x_data[3][vehicle] = []
+                x_data[3][vehicle].append(int(array[j]))
+
+
+
+def make_resourceMargin(x_data,y_data,NODE,timeRange,simTime,startTime):
+    resource_data =[]
+    resource_node_data=[]
+    for i in range(3):
+        resource_data.append([])
+        resource_node_data.append([])
+        for j in range(simTime*1000+1):
+            resource_data[i].append(0)
+            resource_node_data[i].append([])
+
+    with open(s) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            data_tbSent_node(row,x_data,NODE,timeRange)
+            data_subchannel(row,y_data,NODE,timeRange)
+    for road_i in range(len(x_data)):
+        for v in x_data[road_i]:
+            for i in range(len(x_data[road_i][v])):
+                # print("check")
+                # print(road_i)
+                # print(v)
+                # print(i)
+                # print(x_data[road_i])
+                # print(int((x_data[road_i][v][i]-startTime)*1000))
+                
+                resource_data[y_data[road_i][v][i]][int((x_data[road_i][v][i]-startTime)*1000)] += 1
+                resource_node_data[y_data[road_i][v][i]][int((x_data[road_i][v][i]-startTime)*1000)].append(v)
+
+    count_overlap = 0
+    count_margin =0
+    for i in range(3):
+        for j in range(simTime*1000+1):
+            if resource_data[i][j] ==0:
+                count_margin +=1
+            elif resource_data[i][j] >1:
+                count_overlap += 1
+    for j in range(simTime*1000+1):
+        print(f'{resource_node_data[0][j]} \t {resource_node_data[1][j]} \t {resource_node_data[2][j]}')    
+
+    print(f'\nTotal:{3*simTime*1000}, Overlap:{count_overlap}, Margin:{count_margin}')
+
+
+
 if mode == "traffic_pdr":
     ss = "./results/pro1.4_smooth2_rri100.csv"
     ss2 = "./results/sps_smooth2_rri100.csv"
@@ -297,7 +444,7 @@ if mode == "traffic_pdr":
                 y_decode_data[s][i].append(0.0)
                 y_total_data[s][i].append(0)
         
-        make_traffic_pdr(s,timeRange[s],y_decode_data[s],y_total_data[s],x_data[s],senderID[s],NODE[s])
+        make_traffic_pdr(s,timeRange[s],y_decode_data[s],y_total_data[s],x_data[s],senderID[s],NODE[s],startTime,span)
         print(s)
         make_data(x_data[s],x_result[s],y_decode_data[s],y_total_data[s],y_result[s])
 
@@ -367,5 +514,27 @@ if mode == "decodeCount":
             count_el_and_total_d(s,t,timeRange[s],NODE[s],senderID[s])
         
 
+if mode == "resourceMargin":
+    ss="./results/pro1.1_smooth2_rri100.csv"
+    ss2="./results/pro1.4_smooth2_rri100.csv"
     
-    
+    ss3="./results/sps_smooth2_rri300.csv"
+    sd="./results/ds_smooth2.csv"
+    timeRange={}
+    simTime = 30
+    startTime = 28800
+    NODE = {}
+    x_data={}
+    y_data={}
+    for s in [sd]:
+        timeRange[s]=[{},{},{},{}]
+        x_data[s] = [{},{},{},{}]
+        y_data[s] = [{},{},{},{}]
+        if "pro" in s:
+            NODE[s]=[INTERSECTION_A_NODE_P,INTERSECTION_B_NODE_P,STREET_C_NODE_P,STREET_D_NODE_P]
+            make_timerange(s_c_a2,s_c_b2,s_c_c2,s_c_d2,timeRange[s])
+        else:
+            NODE[s]=[INTERSECTION_A_NODE,INTERSECTION_B_NODE,STREET_C_NODE,STREET_D_NODE]
+            make_timerange(s_c_a,s_c_b,s_c_c,s_c_d,timeRange[s])
+        print(s)
+        make_resourceMargin(x_data[s],y_data[s],NODE[s],timeRange[s],simTime,startTime)
