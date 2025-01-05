@@ -113,6 +113,10 @@ protected:
    simsignal_t retainGrant;
    //added by ryu
    simsignal_t rriValue;
+   bool isPassSPS;
+   int selectedSubchannel_;
+   float selectedSlot_;
+   std::vector<std::pair<int,simtime_t>> correspondingNode_;
 
 //   // Lte AMC module
 //   LteAmc *amc_;
@@ -192,8 +196,8 @@ protected:
     std::unordered_map<std::string, std::string> createIndex(std::string&);
 
     std::string searchByIdUsingIndex(std::unordered_map<std::string, std::string>& , std::string& );
-    bool judgeTChange(std::unordered_map<std::string, std::string>& , std::string& ,float interval);
-
+    int judgeTChange(std::unordered_map<std::string, std::string>& , std::string& ,float interval);
+    void updateCSVWithIndex(std::string&,  int id,float limit);
     //end ryu
 
 public:

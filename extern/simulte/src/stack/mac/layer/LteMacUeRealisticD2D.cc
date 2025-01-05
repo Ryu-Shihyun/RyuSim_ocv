@@ -391,7 +391,8 @@ void LteMacUeRealisticD2D::handleMessage(cMessage* msg)
         {
             EV << "LteMacUeRealisticD2D::handleMessage - Received packet " << pkt->getName() <<
             " from port " << pkt->getArrivalGate()->getName() << endl;
-
+            cout << "LteMacUeRealisticD2D::handleMessage - Received packet " << pkt->getName() <<
+            " from port " << pkt->getArrivalGate()->getName() << ", size:" << pkt->getBitLength()<< endl;
             // message from PHY_to_MAC gate (from lower layer)
             emit(receivedPacketFromLowerLayer, pkt);
 

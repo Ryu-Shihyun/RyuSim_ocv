@@ -67,6 +67,7 @@ class CaService : public ItsG5BaseService
 		//ryu test
 		void updateCSVWithIndex(std::string& ,  uint32_t id, bool isChange);
 		bool calculateTChange();
+		float mTChange;
 	private:
 		//ryu test
 		omnetpp::simsignal_t scSignalCamReceived;

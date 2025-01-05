@@ -97,6 +97,7 @@ void LteMacVUeMode4::initialize(int stage)
         retainGrant             = registerSignal("retainGrant");
         //added by ryu
         rriValue                = registerSignal("rriValue");
+        isPassSPS               = false;
     }   
     else if (stage == inet::INITSTAGE_NETWORK_LAYER_3)
     {
@@ -571,6 +572,9 @@ void LteMacVUeMode4::handleMessage(cMessage *msg)
         {
             EV << "LteMacVUeMode4::handleMessage - Received packet " << pkt->getName() <<
             " from port " << pkt->getArrivalGate()->getName() << endl;
+            cout << "LteMacVUeMode4::handleMessage - Received packet " << pkt->getName() <<
+            " from port " << pkt->getArrivalGate()->getName() << ", size:" << pkt->getBitLength()<< endl;
+            
 
             // message from PHY_to_MAC gate (from lower layer)
             emit(receivedPacketFromLowerLayer, pkt);
@@ -621,12 +625,37 @@ void LteMacVUeMode4::handleMessage(cMessage *msg)
             channelOccupancyRatio_ = calculateChannelOccupancyRatio(period);
 
             // message from PHY_to_MAC gate (from lower layer)
+            cout << "LteMacVUeMode4::handleMessage - Received packet2 " << pkt->getName() <<
+            " from port " << pkt->getArrivalGate()->getName() << ", size:" << pkt->getBitLength() << endl;
+            
             emit(receivedPacketFromLowerLayer, pkt);
 
             LteMacBase::sendUpperPackets(cbrPkt);
 
             return;
         }
+        //start ryu
+        else if (pkt->getBitLength() > 0){
+            
+            UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
+            MacNodeId src = userInfo->getSourceId();
+            int src_int = src - 1025;
+            auto it = std::find_if(correspondingNode_.begin(), correspondingNode_.end(), [src_int](std::pair<int,simtime_t>p){
+                return p.first == src_int;
+            });
+            if(it != correspondingNode_.end()){
+                it->second = NOW;
+            }else{
+                correspondingNode_.push_back(std::make_pair(src_int,NOW));
+            }
+
+            correspondingNode_.erase(std::remove_if(correspondingNode_.begin(), correspondingNode_.end(), [](std::pair<int,simtime_t>p) {
+                simtime_t elapsed = NOW - p.second;
+                return elapsed.dbl() > 2; // 削除条件
+            }), correspondingNode_.end());
+
+        }
+        //end ryu
     }
     else if (incoming == up_[IN])
     {
@@ -779,22 +808,33 @@ void LteMacVUeMode4::handleSelfMessage()
             //     cout << NOW << " expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
              //start ryu
             // t_changeを確認する
-            // std::string f1 = "parameter_nodeID.data";
-            // std::string f2 = "parameter.data";
-            // int nodeId_n = nodeId_ - 1025;
-            // std::string nodeID_str = std::to_string(nodeId_n);
-            // auto index = createIndex(f1);
-            // auto index2 = createIndex(f2);
-            // std::string searchResult = searchByIdUsingIndex(index, nodeID_str);
-            // if (!searchResult.empty() && judgeTChange(index2, searchResult, periodCounter_ * 0.001)) {
-            //     // If t_change, this transmission makes the last SPS frame
-            //     cout << NOW << ", nodeID:" << nodeId_ <<" T_change" << endl;//test by ryu
-            //     expirationCounter_ = 0;
-            //     mode4Grant->setExpiration(0);
-            //     expiredGrant_ = true;
-                
-            // }
-        
+            std::string f1 = "parameter_nodeID.data";
+            std::string f2 = "parameter.data";
+            
+            int nodeId_n = nodeId_ - 1025;
+            std::string nodeID_str = std::to_string(nodeId_n);
+            auto index = createIndex(f1);
+            auto index2 = createIndex(f2);
+            std::string searchResult = searchByIdUsingIndex(index, nodeID_str);
+            int num = 0;
+            if(!searchResult.empty()){
+                num=judgeTChange(index2, searchResult, periodCounter_ * 0.001);
+            
+                if (num==1) {
+                    // If t_change, this transmission makes the last SPS frame
+                    cout << NOW << ", nodeID:" << nodeId_ <<" T_change" << endl;//test by ryu
+                    expirationCounter_ = 0;
+                    mode4Grant->setExpiration(0);
+                    expiredGrant_ = true;
+                    
+                }else if (num==2){
+                    //サブチャネルと時間を保存する
+                    //nodeID,subchannel time,subchannel time
+                    cout << "2\n";
+
+
+                }
+            }
             //end ryu
         }
         else if (expirationCounter_ <= 0)
@@ -962,6 +1002,7 @@ void LteMacVUeMode4::macHandleSps(cPacket* pkt)
      */
     SpsCandidateResources* candidatesPacket = check_and_cast<SpsCandidateResources *>(pkt);
     std::vector<std::tuple<double, int, int, bool>> CSRs = candidatesPacket->getCSRs();
+    cout << "csrs:" << CSRs.size() << "\n";
 
     LteMode4SchedulingGrant* mode4Grant = check_and_cast<LteMode4SchedulingGrant*>(schedulingGrant_);
 
@@ -990,13 +1031,59 @@ void LteMacVUeMode4::macHandleSps(cPacket* pkt)
     int initiailSubchannel = std::get<2>(selectedCR);
     int finalSubchannel = initiailSubchannel + mode4Grant->getNumSubchannels(); // Is this actually one additional subchannel?
     bool reservedCSR = std::get<3>(selectedCR);
+    
+    //start ryu
+    
+    // パケット受信したnode
+    // std::vector<int> nodes;
+    // cout << "nodes\n";
+    // for (auto it=correspondingNode_.begin();it!=correspondingNode_.end();++it){
+    //     nodes.push_back(it->first);
+    // }
+    // //resource.dataから空いているリソースを取り出す。
+    // std::string f2 = "parameter.data";
+    // std::string f3  = "resource.data";
+    // auto index3 = createIndex(f3);
+    // std::vector<std::string> searchResults;
+    // cout << "resource\n";
+    // for(auto it=nodes.begin();it!=nodes.end();++it){
+    //     std::string nodeID_str = std::to_string(*it);
+    //     std::string result = searchByIdUsingIndex(index3, nodeID_str);
+    //     if(result != ""){
+    //         searchResults.push_back(result);    
+    //     }
+    // };
+    // cout << "results\n";
+    // if (searchResults.size()>0){
+    //     int select_index =intuniform(0, searchResults.size()-1, 1);
+    //     std::stringstream ss(searchResults[select_index]);
+    //     std::vector<std::string> result;
+    //     std::string item;
+    //     char c = ' ';
+    //     while (std::getline(ss, item, c)) {
+    //         // std::cout << item << std::endl;
+    //         result.push_back(item);
+    //     }
+    //     cout << "reorigin\n";
+    //     selectedStartTime = (SimTime(std::stof(result[1]), SIMTIME_MS)).trunc(SIMTIME_MS);
+
+    //     initiailSubchannel = std::stoi(result[0]);
+    //     finalSubchannel = initiailSubchannel + mode4Grant->getNumSubchannels(); // Is this actually one additional subchannel?
+    // }
+    
+    
+    
+    //end ryu
+
 
     // Emit statistic about the use of resources, i.e. the initial subchannel and it's length.
+    // start ryu
     emit(selectedSubchannelIndex, initiailSubchannel);
     emit(selectedNumSubchannels, mode4Grant->getNumSubchannels());
     emit(takingReservedGrant, reservedCSR);
+    selectedSlot_ = selectedStartTime.dbl();
+    selectedSubchannel_ = initiailSubchannel;
 
-     //start ryu
     // ofs << nodeId_ << ","<<selectedStartTime << ",";
     // for(int i=0;i<mode4Grant->getNumSubchannels();i++){
     //     if(i==mode4Grant->getNumSubchannels()-1){
@@ -1445,8 +1532,8 @@ void LteMacVUeMode4::flushHarqBuffers()
                 //expiredGrantしたときもここをとおる
                 //end ryu
         
-                // delete schedulingGrant_;
-                // schedulingGrant_ = NULL;
+                delete schedulingGrant_;
+                schedulingGrant_ = NULL;
                 missedTransmissions_ = 0;
 
                 emit(grantBreakMissedTrans, 1);
@@ -1518,23 +1605,100 @@ std::string LteMacVUeMode4::searchByIdUsingIndex(std::unordered_map<std::string,
         return "";
     }
 }
-bool LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& index, std::string& targetId, float interval) {
+int LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& index, std::string& targetId, float interval) {
     auto it = index.find(targetId);
     if (it != index.end()) {
         // std::cout << "Found: " << it->second << std::endl;
         std::stringstream ss(it->second);
         std::vector<std::string> result;
         std::string item;
+        std::string f3 = "resource.data";
         char c = ',';
+        int node_int = nodeId_ - 1025;
 
         while (std::getline(ss, item, c)) {
             // std::cout << item << std::endl;
             result.push_back(item);
         }
-        return !(result[1] == "0" && abs(std::stof(result[2])-interval) < 0.1);
+        cout << "result:" << result.size() << endl;
+        if ( std::stof(result[2])==interval){
+            return std::stoi(result[1]);
+        }else if (std::stof(result[2])<interval){
+            return 1;
+        }else if (std::stof(result[2])>interval){
+            if (std::stoi(result[1])==1){
+                updateCSVWithIndex(f3,node_int,std::stof(result[3]));
+            }else{
+                updateCSVWithIndex(f3,node_int,std::stof(result[2]));
+            }
+            return 2;
+        }
     } else {
         std::cout << "ID " << targetId << " not found in index." << std::endl;
-        return false;
+        return 0;
+    }
+}
+void LteMacVUeMode4::updateCSVWithIndex(std::string& filename,  int id,float limit)
+{
+	std::string id_str = std::to_string(id);
+	// std::cout << "updateCSVWithIndex" << std::endl;
+
+	std::ifstream inFile(filename);
+    if (!inFile.is_open()) {
+        std::cerr << "Failed to open file: " << filename <<" at CaService" <<  std::endl;
+        return;
+    }
+
+    // インデックス作成（ID -> ファイル位置）
+    std::unordered_map<std::string, std::streampos> index;
+    std::string line;
+    std::streampos pos = inFile.tellg();
+
+    while (std::getline(inFile, line)) {
+        std::stringstream ss(line);
+        std::string rowId;
+        std::getline(ss, rowId, ',');
+        index[rowId] = pos;
+        pos = inFile.tellg();
+    }
+
+    inFile.close();
+	
+	
+    // IDが存在する場合、更新
+    if (index.find(id_str) != index.end()) {
+        std::fstream file(filename, std::ios::in | std::ios::out);
+        if (!file.is_open()) {
+            std::cerr << "Failed to open file for update. at CaService" << std::endl;
+            return;
+        }
+
+        file.seekp(index[id_str]);
+        std::getline(file, line); // 更新対象の行を読み飛ばす
+        file.seekp(index[id_str]);    // 再度位置を調整
+
+        file << id_str << "," << selectedSubchannel_ << " " << selectedSlot_ + resourceReservationInterval_ << "\n";
+        // for (float f = resourceReservationInterval_; f < limit;){
+        //     file << "," << selectedSubchannel_ << " " << selectedSlot_ + f;
+        //     f += resourceReservationInterval_;
+        // }
+        // file << "\n"; //
+
+        file.close();
+    } else {
+        // IDが存在しない場合、新しい行を追加
+        std::ofstream outFile(filename, std::ios::app);
+        if (!outFile.is_open()) {
+            std::cerr << "Failed to open file for appending. at CaService" << std::endl;
+            return;
+        }
+        outFile << id_str << "," << selectedSubchannel_ << " " << selectedSlot_ + resourceReservationInterval_ << "\n";
+        // for (float f = resourceReservationInterval_; f < limit;){
+        //     outFile << "," << selectedSubchannel_ << " " << selectedSlot_ + f;
+        //     f += resourceReservationInterval_;
+        // }
+        // outFile << "\n"; //
+        outFile.close();
     }
 }
 
