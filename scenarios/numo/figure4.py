@@ -712,9 +712,9 @@ if mode in ["pdrDistance", "0", "1","2"]:
     save = mode
     l =""
     yl = ""
-    csv_s10 ="results/test_0.3_sps.csv"
-    csv_s50 ="results/test_0.3_pro1.1.csv"
-    csv_s100 ="results/test_0.3_pro1.4.csv"
+    csv_s10 ="results/intersection_sps_rri300.csv"
+    csv_s50 ="results/intersection_pro1.1_rri100.csv"
+    csv_s100 ="results/intersection_pro1.5_rri300.csv"
     csv_d = 'results/test_0.3_ds.csv'
     pdr_vector = ""
     if mode=="pdrDistance":
