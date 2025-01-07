@@ -814,8 +814,8 @@ void LteMacVUeMode4::handleSelfMessage()
              //start ryu
             // t_changeを確認する
             // Proposal on/off
-            std::string f1 = "parameter_nodeID.data";
-            std::string f2 = "parameter.data";
+            std::string f1 = "parameter_nodeID.data.csv";
+            std::string f2 = "parameter.data.csv";
             
             int nodeId_n = nodeId_ - 1025;
             std::string nodeID_str = std::to_string(nodeId_n);
@@ -1063,8 +1063,8 @@ void LteMacVUeMode4::macHandleSps(cPacket* pkt)
     for (auto it=correspondingNode_.begin();it!=correspondingNode_.end();++it){
         nodes.push_back(it->first);
     }
-    //resource.dataから空いているリソースを取り出す。
-    std::string f3  = "resource.data";
+    //resource.data.csvから空いているリソースを取り出す。
+    std::string f3  = "resource.data.csv";
     auto index3 = createIndex(f3);
     std::vector<std::string> searchResults;
     cout << "resource"<<endl;
@@ -1658,7 +1658,7 @@ int LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& i
         std::stringstream ss(it->second);
         std::vector<std::string> result;
         std::string item;
-        std::string f3 = "resource.data";
+        std::string f3 = "resource.data.csv";
         char c = ',';
         int node_int = nodeId_ - 1025;
 

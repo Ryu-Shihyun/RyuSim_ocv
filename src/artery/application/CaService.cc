@@ -160,7 +160,7 @@ void CaService::checkTriggeringConditions(const SimTime& T_now)
 	const SimTime T_elapsed = T_now - mLastCamTimestamp;
 
 	// 外部ファイルを作成
-	std::string parameter_str = "parameter.data";
+	std::string parameter_str = "parameter.data.csv";
 	
 	if (T_elapsed >= T_GenCamFinal & T_now > startUpTime) {
 		if (mFixedRate || mExponentialNonPeriodic) {
@@ -279,7 +279,7 @@ void CaService::sendCam(const SimTime& T_now)
 	
 	
 	//T_changeを出力する関数を呼び出す
-	// parameter.dataに書き込み
+	// parameter.data.csvに書き込み
 	//end ryu
 	this->request(request, std::move(payload), mNetworkInterfaceTable->select(0).get());
 }
