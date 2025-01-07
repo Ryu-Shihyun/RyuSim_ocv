@@ -776,8 +776,8 @@ void LteMacVUeMode4::handleSelfMessage()
             //     cout << NOW << " expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
              //start ryu
             // t_changeを確認する
-            std::string f1 = "parameter_nodeID.data";
-            std::string f2 = "parameter.data";
+            std::string f1 = "parameter_nodeID.data.csv";
+            std::string f2 = "parameter.data.csv";
             int nodeId_n = nodeId_ - 1025;
             std::string nodeID_str = std::to_string(nodeId_n);
             auto index = createIndex(f1);

@@ -402,6 +402,58 @@ def make_resourceMargin(x_data,y_data,NODE,timeRange,simTime,startTime):
 
     print(f'\nTotal:{3*simTime*1000}, Overlap:{count_overlap}, Margin:{count_margin}')
 
+def make_resourceMargin_simple(x_data,y_data,NODE,timeRange,simTime,startTime):
+    resource_data =[]
+    resource_node_data=[]
+    for i in range(3):
+        resource_data.append([])
+        resource_node_data.append([])
+        for j in range(simTime*1000+1):
+            resource_data[i].append(0)
+            resource_node_data[i].append([])
+
+    with open(s) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            data_tbSent_node(row,x_data,NODE,timeRange)
+            data_subchannel(row,y_data,NODE,timeRange)
+    # range is 1
+    for road_i in range(1):
+        for v in x_data[road_i]:
+            for i in range(len(x_data[road_i][v])):
+                # print("check")
+                # print(road_i)
+                # print(v)
+                # print(i)
+                # print(x_data[road_i])
+                # print(int((x_data[road_i][v][i]-startTime)*1000))
+                
+                resource_data[y_data[road_i][v][i]][int((x_data[road_i][v][i]-startTime)*1000)] += 1
+                resource_node_data[y_data[road_i][v][i]][int((x_data[road_i][v][i]-startTime)*1000)].append(v)
+
+    count_overlap = 0
+    count_margin =0
+    for i in range(3):
+        for j in range(simTime*1000+1):
+            if resource_data[i][j] ==0:
+                count_margin +=1
+            elif resource_data[i][j] >1:
+                count_overlap += 1
+    for j in range(simTime*1000+1):
+        print(f'{resource_node_data[0][j]} \t {resource_node_data[1][j]} \t {resource_node_data[2][j]}')    
+
+    print(f'\nTotal:{3*simTime*1000}, Overlap:{count_overlap}, Margin:{count_margin}')
+
+
+def makeNodes(s,NODE):
+    with open(s) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[1] == "vector" and row[3] == "camVehicleId:vector":
+                id = re.split(" ",row[8])[0]
+                vehicle = re.split("[\[\]]",row[2])[1]
+                NODE[vehicle]=id
+
 
 
 if mode == "traffic_pdr":
@@ -538,3 +590,37 @@ if mode == "resourceMargin":
             make_timerange(s_c_a,s_c_b,s_c_c,s_c_d,timeRange[s])
         print(s)
         make_resourceMargin(x_data[s],y_data[s],NODE[s],timeRange[s],simTime,startTime)
+
+if mode == "parameter":
+    NODE ={}
+    makeNodes(ss,NODE)
+    for n in NODE:
+        print(str(n) + "," + NODE[n])
+
+if mode == "myenv_resourceMargin":
+    # csv_s10 ="results/test_0.3_sps.csv"
+    # csv_s50 ="results/test_0.3_pro1.4.csv"
+    # csv_s100 ="results/test_0.3_pro2.1.csv"
+    # csv_d = 'results/test_0.3_ds.csv'
+    csv_s10 ="results/intersection_sps_rri100.csv"
+    csv_s50 ="results/intersection_pro1.1_rri100.csv"
+    csv_s100 ="results/intersection_pro2.1_rri100.csv"
+    csv_d = 'results/intersection_ds.csv'
+    timeRange={}
+    simTime = 100
+    startTime = 200
+    NODE = {}
+    x_data={}
+    y_data={}
+    for s in [csv_s100]:
+        timeRange[s]=[{},{},{},{}]
+        nodes = {}
+        makeNodes(s,nodes)
+        x_data[s] = [{},{},{},{}]
+        y_data[s] = [{},{},{},{}]
+        NODE[s]=[nodes,nodes,nodes,nodes]
+        for n in nodes:
+            for i in range(len(timeRange[s])):
+                timeRange[s][i][n]=[startTime,startTime+simTime]
+        print(s)
+        make_resourceMargin_simple(x_data[s],y_data[s],NODE[s],timeRange[s],simTime,startTime)

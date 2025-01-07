@@ -17,7 +17,7 @@ cam_smooth.sh
 cam.sh
 *.log
 check.txt
-gomit.csv
+gomi.csv
 makecsv.csv
 makecsv.ods
 numo_memo*
@@ -29,3 +29,4 @@ test.txt
 traffic.sh
 vehicle_memo
 *.zip
+*.data.csv
