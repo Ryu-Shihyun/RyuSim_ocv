@@ -363,7 +363,7 @@ void LteMacBase::handleMessage(cMessage* msg)
         //start ryu
         UserControlInfo *userInfo = check_and_cast<UserControlInfo *>(pkt->getControlInfo());
         MacNodeId src = userInfo->getSourceId();
-        std::cout << "LteMacBase::handleMessage - Received packet " << pkt->getName() <<
+        std::cout << "nodeID:" << nodeId_ << ", LteMacBase::handleMessage - Received packet " << pkt->getName() <<
             " from port " << pkt->getArrivalGate()->getName() << ", size:" << pkt->getBitLength() << ",from:" << src<< std::endl;
         //end ryu
         emit(receivedPacketFromLowerLayer, pkt);

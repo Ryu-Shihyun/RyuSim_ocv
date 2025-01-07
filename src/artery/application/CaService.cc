@@ -423,7 +423,7 @@ void CaService::updateCSVWithIndex(std::string& filename,  uint32_t id,  bool is
         file.seekp(index[id_str]);
         std::getline(file, line); // 更新対象の行を読み飛ばす
         file.seekp(index[id_str]);    // 再度位置を調整
-        file << id_str << ","<< int_ischange << "," << std::ceil(mGenCam.dbl()*10)/10 << "," << std::ceil(mTChange*1000)/1000<< "\n"; //
+        file << id_str << ","<< int_ischange << "," << std::ceil(mGenCam.dbl()*10)/10 << "," << std::ceil(mTChange*1000)/1000<< endl; //
 
         file.close();
     } else {
@@ -433,7 +433,7 @@ void CaService::updateCSVWithIndex(std::string& filename,  uint32_t id,  bool is
             std::cerr << "Failed to open file for appending. at CaService" << std::endl;
             return;
         }
-        outFile << id_str << "," << int_ischange << "," << std::ceil(mGenCam.dbl()*10)/10<< "," << std::ceil(mTChange*1000)/1000 << "\n";
+        outFile << id_str << "," << int_ischange << "," << std::ceil(mGenCam.dbl()*10)/10<< "," << std::ceil(mTChange*1000)/1000 << endl;
         outFile.close();
     }
 }
@@ -441,18 +441,18 @@ void CaService::updateCSVWithIndex(std::string& filename,  uint32_t id,  bool is
 bool CaService::calculateTChange()
 {
 	// std::cout << "calculateTChange()," << mVehicleDataProvider->station_id() << std::endl;
-	float time_e = mGenCam.dbl();
+	double time_e = mGenCam.dbl();
 
 	// 等加速運動として計算
-	float vectorA_e=(mVehicleDataProvider->speed().value()-mLastCamSpeed.value())/time_e;
-	float vectorV_e=mVehicleDataProvider->speed().value() + vectorA_e * time_e ;
-	// float vectorP_e=mVehicleDataProvider->position() + vectorV_e * time_e + vectorA_e * 0.5 * time_e * time_e;
-	float time_change_p = (sqrt(vectorV_e*vectorV_e+2*vectorA_e*mPositionDelta.value())-vectorV_e)/vectorA_e;
-	float time_change_v = mSpeedDelta.value()/vectorA_e;
+	double vectorA_e=(mVehicleDataProvider->speed().value()-mLastCamSpeed.value())/time_e;
+	double vectorV_e=mVehicleDataProvider->speed().value() + vectorA_e * time_e ;
+	// double vectorP_e=mVehicleDataProvider->position() + vectorV_e * time_e + vectorA_e * 0.5 * time_e * time_e;
+	double time_change_p = (sqrt(vectorV_e*vectorV_e+2*vectorA_e*mPositionDelta.value())-vectorV_e)/vectorA_e;
+	double time_change_v = mSpeedDelta.value()/vectorA_e;
 	
-	float degreeV_e=(mVehicleDataProvider->heading().value()-mLastCamHeading.value())/time_e;
-	float degree_e=mVehicleDataProvider->heading().value()+degreeV_e * time_e;
-	float time_change_a = mHeadingDelta.value()/degreeV_e;
+	double degreeV_e=(mVehicleDataProvider->heading().value()-mLastCamHeading.value())/time_e;
+	double degree_e=mVehicleDataProvider->heading().value()+degreeV_e * time_e;
+	double time_change_a = mHeadingDelta.value()/degreeV_e;
 
 	if (time_change_p < 0){
 		time_change_p=std::ceil(time_e*10)/10;

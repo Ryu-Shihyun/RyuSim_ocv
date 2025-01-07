@@ -115,7 +115,7 @@ protected:
    simsignal_t rriValue;
    bool isPassSPS;
    int selectedSubchannel_;
-   float selectedSlot_;
+   double selectedSlot_;
    std::vector<std::pair<int,simtime_t>> correspondingNode_;
 
 //   // Lte AMC module

@@ -564,21 +564,26 @@ void LteMacVUeMode4::handleMessage(cMessage *msg)
     }
 
     cPacket* pkt = check_and_cast<cPacket *>(msg);
+    
     cGate* incoming = pkt->getArrivalGate();
 
     if (incoming == down_[IN])
     {
         if (strcmp(pkt->getName(), "CSRs") == 0)
         {
+
             EV << "LteMacVUeMode4::handleMessage - Received packet " << pkt->getName() <<
             " from port " << pkt->getArrivalGate()->getName() << endl;
-            cout << "LteMacVUeMode4::handleMessage - Received packet " << pkt->getName() <<
-            " from port " << pkt->getArrivalGate()->getName() << ", size:" << pkt->getBitLength()<< endl;
+            cout << "nodeID:" << nodeId_ << ", LteMacVUeMode4::handleMessage - Received packet \n" ;
+            cout << pkt->getName() << endl;
+            cout <<" from port " << pkt->getArrivalGate()->getName()<< endl;
+            cout << ", size:" << pkt->getBitLength( )<< endl;
             
-
+            cout << "pkt is null"<<endl;
             // message from PHY_to_MAC gate (from lower layer)
             emit(receivedPacketFromLowerLayer, pkt);
-
+            cout << "pkt is null" << endl;
+    
             // call handler
             macHandleSps(pkt);
 
@@ -808,6 +813,7 @@ void LteMacVUeMode4::handleSelfMessage()
             //     cout << NOW << " expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
              //start ryu
             // t_changeを確認する
+            // Proposal on/off
             std::string f1 = "parameter_nodeID.data";
             std::string f2 = "parameter.data";
             
@@ -1000,16 +1006,32 @@ void LteMacVUeMode4::macHandleSps(cPacket* pkt)
      * 3. Assign the CR
      * 4. return
      */
+    if(pkt==NULL){
+        cout << "pkt is null"<<endl;
+    }
+    
     SpsCandidateResources* candidatesPacket = check_and_cast<SpsCandidateResources *>(pkt);
+    if(candidatesPacket->getCSRs().empty()){
+        cout << "csr is null"<<endl;
+    }
     std::vector<std::tuple<double, int, int, bool>> CSRs = candidatesPacket->getCSRs();
-    cout << "csrs:" << CSRs.size() << "\n";
+    cout << "csrs:" << CSRs.size() <<endl;
 
     LteMode4SchedulingGrant* mode4Grant = check_and_cast<LteMode4SchedulingGrant*>(schedulingGrant_);
-
+    //start ryu
+    int maxTimeIndex=0;
+    for(int i=0;i<CSRs.size();i++){
+        std::tuple<double, int, int, bool> cr = CSRs[i];
+        if (std::get<1>(cr) > maxTimeIndex){
+            maxTimeIndex = std::get<1>(cr);
+        }
+    }
+    //end ryu
     // Select random element from vector
     int index = intuniform(0, CSRs.size()-1, 1);
-    //start ryu
+    
     std::tuple<double, int, int, bool> selectedCR = CSRs[index];
+    //start ryu
     // std::string csv_file_path = "data/resourcesAllocation.csv"; // added by ryu
     // std::ofstream ofs;
     // ofs.open(csv_file_path,std::ios::app);
@@ -1035,41 +1057,58 @@ void LteMacVUeMode4::macHandleSps(cPacket* pkt)
     //start ryu
     
     // パケット受信したnode
-    // std::vector<int> nodes;
-    // cout << "nodes\n";
-    // for (auto it=correspondingNode_.begin();it!=correspondingNode_.end();++it){
-    //     nodes.push_back(it->first);
-    // }
-    // //resource.dataから空いているリソースを取り出す。
-    // std::string f2 = "parameter.data";
-    // std::string f3  = "resource.data";
-    // auto index3 = createIndex(f3);
-    // std::vector<std::string> searchResults;
-    // cout << "resource\n";
-    // for(auto it=nodes.begin();it!=nodes.end();++it){
-    //     std::string nodeID_str = std::to_string(*it);
-    //     std::string result = searchByIdUsingIndex(index3, nodeID_str);
-    //     if(result != ""){
-    //         searchResults.push_back(result);    
-    //     }
-    // };
-    // cout << "results\n";
-    // if (searchResults.size()>0){
-    //     int select_index =intuniform(0, searchResults.size()-1, 1);
-    //     std::stringstream ss(searchResults[select_index]);
-    //     std::vector<std::string> result;
-    //     std::string item;
-    //     char c = ' ';
-    //     while (std::getline(ss, item, c)) {
-    //         // std::cout << item << std::endl;
-    //         result.push_back(item);
-    //     }
-    //     cout << "reorigin\n";
-    //     selectedStartTime = (SimTime(std::stof(result[1]), SIMTIME_MS)).trunc(SIMTIME_MS);
+    //Proposal on/off
+    std::vector<int> nodes;
+    cout << "nodes"<<endl;
+    for (auto it=correspondingNode_.begin();it!=correspondingNode_.end();++it){
+        nodes.push_back(it->first);
+    }
+    //resource.dataから空いているリソースを取り出す。
+    std::string f3  = "resource.data";
+    auto index3 = createIndex(f3);
+    std::vector<std::string> searchResults;
+    cout << "resource"<<endl;
+    for(auto it=nodes.begin();it!=nodes.end();++it){
+        std::string nodeID_str = std::to_string(*it);
+        std::string result = searchByIdUsingIndex(index3, nodeID_str);
+        if(result != ""){
+            searchResults.push_back(result);    
+        }
+    }
+    cout << "results"<<endl;
+    //古いものは捨てる
+    //予約するには前すぎるものは捨てる
+    simtime_t limit = (simTime() + SimTime(maxTimeIndex, SIMTIME_MS) - TTI).trunc(SIMTIME_MS);
+    searchResults.erase(std::remove_if(searchResults.begin(), searchResults.end(),
+            [limit](string x) {
+            std::stringstream ss(x);
+            std::vector<std::string> result;
+            std::string item;
+            char c = ';';
+            while (std::getline(ss, item, c)) {
+                std::cout << item << std::endl;
+                result.push_back(item);
+            }
+                return SimTime(std::stof(result[1])) <= NOW || SimTime(std::stof(result[1])) > limit; 
+                }),
+        searchResults.end());
+    
+    if (searchResults.size()>0){
+        int select_index =intuniform(0, searchResults.size()-1, 1);
+        std::stringstream ss(searchResults[select_index]);
+        std::vector<std::string> result;
+        std::string item;
+        char c = ';';
+        while (std::getline(ss, item, c)) {
+            std::cout << item << std::endl;
+            result.push_back(item);
+        }
+        cout << "reorigin"<<endl;
+        selectedStartTime = SimTime(std::stof(result[1]));
 
-    //     initiailSubchannel = std::stoi(result[0]);
-    //     finalSubchannel = initiailSubchannel + mode4Grant->getNumSubchannels(); // Is this actually one additional subchannel?
-    // }
+        initiailSubchannel = std::stoi(result[0]);
+        finalSubchannel = initiailSubchannel + mode4Grant->getNumSubchannels(); // Is this actually one additional subchannel?
+    }
     
     
     
@@ -1081,6 +1120,7 @@ void LteMacVUeMode4::macHandleSps(cPacket* pkt)
     emit(selectedSubchannelIndex, initiailSubchannel);
     emit(selectedNumSubchannels, mode4Grant->getNumSubchannels());
     emit(takingReservedGrant, reservedCSR);
+    cout << "nodeId_:" << nodeId_ << ", selectedStartTime:" << selectedStartTime.dbl() << endl;
     selectedSlot_ = selectedStartTime.dbl();
     selectedSubchannel_ = initiailSubchannel;
 
@@ -1588,18 +1628,24 @@ std::unordered_map<std::string, std::string> LteMacVUeMode4::createIndex(std::st
 std::string LteMacVUeMode4::searchByIdUsingIndex(std::unordered_map<std::string, std::string>& index, std::string& targetId) {
     auto it = index.find(targetId);
     if (it != index.end()) {
-        // std::cout << "Found: " << it->second << std::endl;
+        std::cout << "Found: " << it->second << std::endl;
         std::stringstream ss(it->second);
         std::vector<std::string> result;
         std::string item;
         char c = ',';
 
         while (std::getline(ss, item, c)) {
-            // std::cout << item << std::endl;
+            std::cout << item << std::endl;
             result.push_back(item);
         }
-        // std::cout << result[1]  << std::endl;
-        return result[1];
+        if(result.size()>=2){
+            std::cout << result[1]  << std::endl;
+            return result[1];
+        }else{
+            std::cout << "ID " << targetId << " is wrong format." << std::endl;
+            return "";
+        }
+        
     } else {
         std::cout << "ID " << targetId << " not found in index." << std::endl;
         return "";
@@ -1663,10 +1709,11 @@ void LteMacVUeMode4::updateCSVWithIndex(std::string& filename,  int id,float lim
     }
 
     inFile.close();
-	
-	
+	cout << "nodeid:" << nodeId_ << "now and slot" << endl;
+	cout << NOW.dbl() << endl;
+    cout << selectedSlot_ << endl;
     // IDが存在する場合、更新
-    if (index.find(id_str) != index.end()) {
+    if (index.find(id_str) != index.end() && selectedSlot_ >= NOW.dbl()) {
         std::fstream file(filename, std::ios::in | std::ios::out);
         if (!file.is_open()) {
             std::cerr << "Failed to open file for update. at CaService" << std::endl;
@@ -1677,24 +1724,24 @@ void LteMacVUeMode4::updateCSVWithIndex(std::string& filename,  int id,float lim
         std::getline(file, line); // 更新対象の行を読み飛ばす
         file.seekp(index[id_str]);    // 再度位置を調整
 
-        file << id_str << "," << selectedSubchannel_ << " " << selectedSlot_ + resourceReservationInterval_ << "\n";
+        file << id_str << "," << selectedSubchannel_ << ";" << std::ceil((selectedSlot_ + resourceReservationInterval_)*1000)/1000 << endl;
         // for (float f = resourceReservationInterval_; f < limit;){
-        //     file << "," << selectedSubchannel_ << " " << selectedSlot_ + f;
+        //     file << "," << selectedSubchannel_ << ";" << selectedSlot_ + f;
         //     f += resourceReservationInterval_;
         // }
         // file << "\n"; //
 
         file.close();
-    } else {
+    } else if (index.find(id_str) == index.end() && selectedSlot_ >= NOW.dbl()) {
         // IDが存在しない場合、新しい行を追加
         std::ofstream outFile(filename, std::ios::app);
         if (!outFile.is_open()) {
             std::cerr << "Failed to open file for appending. at CaService" << std::endl;
             return;
         }
-        outFile << id_str << "," << selectedSubchannel_ << " " << selectedSlot_ + resourceReservationInterval_ << "\n";
+        outFile << id_str << "," << selectedSubchannel_ << ";" << std::ceil((selectedSlot_ + resourceReservationInterval_)*1000)/1000 << endl;
         // for (float f = resourceReservationInterval_; f < limit;){
-        //     outFile << "," << selectedSubchannel_ << " " << selectedSlot_ + f;
+        //     outFile << "," << selectedSubchannel_ << ";" << selectedSlot_ + f;
         //     f += resourceReservationInterval_;
         // }
         // outFile << "\n"; //
