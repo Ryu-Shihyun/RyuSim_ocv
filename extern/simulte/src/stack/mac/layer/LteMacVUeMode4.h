@@ -193,6 +193,7 @@ protected:
 
     std::string searchByIdUsingIndex(std::unordered_map<std::string, std::string>& , std::string& );
     bool judgeTChange(std::unordered_map<std::string, std::string>& , std::string& ,float interval);
+    void changeRRIbyTChange(float time);
 
     //end ryu
 

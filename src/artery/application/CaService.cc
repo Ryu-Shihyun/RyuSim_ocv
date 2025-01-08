@@ -423,7 +423,7 @@ void CaService::updateCSVWithIndex(std::string& filename,  uint32_t id,  bool is
         file.seekp(index[id_str]);
         std::getline(file, line); // 更新対象の行を読み飛ばす
         file.seekp(index[id_str]);    // 再度位置を調整
-        file << id_str << ","<< int_ischange << "," << std::ceil(mGenCam.dbl()*10)/10 << "\n"; //
+        file << id_str << ","<< int_ischange << "," << std::ceil(mGenCam.dbl()*10)/10<< "," << std::ceil(mTChange*1000)/1000 << std::endl; //
 
         file.close();
     } else {
