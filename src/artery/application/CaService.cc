@@ -108,7 +108,7 @@ void CaService::initialize()
 	camSentSpeed = cComponent::registerSignal("camSentSpeed");
 	camTriggerHead = cComponent::registerSignal("camTriggerHead");
 	camTriggerPosition = cComponent::registerSignal("camTriggerPosition");
-	camTriggerSpeed = cComponent::registerSignal("camSentHead");
+	camTriggerSpeed = cComponent::registerSignal("camTriggerSpeed");
 	camVehicleId = cComponent::registerSignal("camVehicleId");
 
 	camTriggerHead_ = 0;
@@ -433,7 +433,7 @@ void CaService::updateCSVWithIndex(std::string& filename,  uint32_t id,  bool is
             std::cerr << "Failed to open file for appending. at CaService" << std::endl;
             return;
         }
-        outFile << id_str << "," << int_ischange << "," << std::ceil(mGenCam.dbl()*10)/10<< "\n";
+        outFile << id_str << "," << int_ischange << "," << std::ceil(mGenCam.dbl()*10)/10<< "," << std::ceil(mTChange*1000)/1000 << std::endl;
         outFile.close();
     }
 }

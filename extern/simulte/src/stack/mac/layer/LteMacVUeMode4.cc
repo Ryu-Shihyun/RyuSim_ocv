@@ -1513,16 +1513,20 @@ bool LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& 
                 return false;
             }else{
                 if (result.size() > 3){ // escape segment falt
-                    changeRRIbyTChange(std::stof(result[3]))    
+                    cout << "abs(std::stof(result[2])-interval) < 0.1" << endl;
+                    changeRRIbyTChange(std::stof(result[3]));    
                 }
                 return true;
             }
         }else{
             if(result[1] == "0"){
-                changeRRIbyTChange(std::stof(result[2]))
+                cout << "result[1]==0" << endl;
+                changeRRIbyTChange(std::stof(result[2]));
+                return true;
             }else{
                 if (result.size() > 3){ // escape segment falt
-                    changeRRIbyTChange(std::stof(result[3]))    
+                    cout << "else" << endl;
+                    changeRRIbyTChange(std::stof(result[3]));    
                 }
                 return true;
             }
@@ -1536,8 +1540,9 @@ bool LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& 
 
 void LteMacVUeMode4::changeRRIbyTChange(float time){
     double newRRI=resourceReservationInterval_;
+    cout << time << endl;
     for(int i=0;i<validResourceReservationIntervals_.size();i++ ){
-        if(time <= validResourceReservationIntervals_.at(i)){
+        if(time*10 <= validResourceReservationIntervals_.at(i)){
             newRRI = validResourceReservationIntervals_.at(i);
             break;
         }

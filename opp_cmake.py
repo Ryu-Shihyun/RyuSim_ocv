@@ -27,8 +27,11 @@ class OmnetProject:
     def lookup_project_directory(self):
         candidate = os.path.dirname(self.makefile)
         root = os.path.abspath(os.sep)
+        print(candidate)
+        print(root)
         while (os.path.isfile(os.path.join(candidate, '.project')) is False):
             candidate = os.path.abspath(os.path.join(candidate, os.path.pardir))
+            print(candidate)
             if (candidate == root):
                 raise ValueError("Can not determine project directory for ${self.makefile}")
         return candidate
