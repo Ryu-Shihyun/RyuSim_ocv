@@ -164,19 +164,19 @@ void CaService::checkTriggeringConditions(const SimTime& T_now)
 	
 	if (T_elapsed >= T_GenCamFinal & T_now > startUpTime) {
 		if (mFixedRate || mExponentialNonPeriodic) {
-			sendCam(T_now);
 			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
+			sendCam(T_now);
 			
 		}  else if (checkHeadingDelta(T_now) || checkPositionDelta(T_now) || checkSpeedDelta(T_now)) {
+			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
 			sendCam(T_now);
 			T_GenCam = std::min(T_elapsed, T_GenCamMax); /*< if middleware update interval is too long */
 			mGenCamLowDynamicsCounter = 0;
-			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
 			
 		} else if (T_elapsed >= T_GenCam) {
-			sendCam(T_now);
 			updateCSVWithIndex(parameter_str,mVehicleDataProvider->station_id(),calculateTChange());
-
+			sendCam(T_now);
+			
 			if (++mGenCamLowDynamicsCounter >= mGenCamLowDynamicsLimit) {
 				T_GenCam = T_GenCamMax;
 			}
@@ -446,38 +446,101 @@ bool CaService::calculateTChange()
 	// 等加速運動として計算
 	float vectorA_e=(mVehicleDataProvider->speed().value()-mLastCamSpeed.value())/time_e;
 	float vectorV_e=mVehicleDataProvider->speed().value() + vectorA_e * time_e ;
-	// float vectorP_e=mVehicleDataProvider->position() + vectorV_e * time_e + vectorA_e * 0.5 * time_e * time_e;
-	float time_change_p = (sqrt(vectorV_e*vectorV_e+2*vectorA_e*mPositionDelta.value())-vectorV_e)/vectorA_e;
-	float time_change_v = mSpeedDelta.value()/vectorA_e;
+	if(vectorV_e < 0){
+		vectorV_e = 0;
+	}
+	
+	bool isDiscriminat = true;
+	float time_change_p1 = 0;
+	float time_change_p2 = 0;
+	if (vectorV_e*vectorV_e+4*vectorA_e*mPositionDelta.value() < 0){
+		isDiscriminat = false;
+
+	}else if(vectorA_e!=0.0){
+		time_change_p1 = -1*(sqrt(vectorV_e*vectorV_e+8*vectorA_e)-vectorV_e)/vectorA_e;
+		time_change_p2 = 	(sqrt(vectorV_e*vectorV_e+8*vectorA_e)-vectorV_e)/vectorA_e;
+	}else{
+		time_change_p1=mPositionDelta.value()/vectorV_e;
+		time_change_p2=mPositionDelta.value()/vectorV_e;
+	}
+	bool isPosition = false;
+	if(vectorA_e > 0){
+		isPosition = (time_e <= time_change_p1 || time_e >= time_change_p1);
+	}else{
+		isPosition = (time_e >= time_change_p1 && time_e <= time_change_p2);
+	}
+	
+
+	float time_change_v = mSpeedDelta.value()/abs(vectorA_e);
+	bool isVector = (time_e > time_change_v);
 	
 	float degreeV_e=(mVehicleDataProvider->heading().value()-mLastCamHeading.value())/time_e;
 	float degree_e=mVehicleDataProvider->heading().value()+degreeV_e * time_e;
-	float time_change_a = mHeadingDelta.value()/degreeV_e;
-	if (time_change_p < 0){
-		time_change_p=std::ceil(time_e*10)/10;
-	}else if(time_change_p > mGenCamMax.dbl()){
-		time_change_p = mGenCamMax.dbl();
+	float time_change_a = mHeadingDelta.value()/abs(degreeV_e);
+	bool isAngle = (time_e > time_change_a);
+	
+	std::cout <<"id" << mVehicleDataProvider->station_id() <<  ", time_e:" << time_e << ", time_change_p1" << time_change_p1 << ", time_change_p2" << time_change_p2 << ", time_change_v" << time_change_v << ", time_change_a" << time_change_a << std::endl;
+	std::cout << "v:" << vectorV_e << ", accel:" << vectorA_e << ", degree:" <<degreeV_e << endl;
+	if (time_change_p1 < 0){
+		time_change_p1=mGenCamMax.dbl();
+	}else if(time_change_p1 > mGenCamMax.dbl()){
+		time_change_p1 = mGenCamMax.dbl();
+	}
+	if (time_change_p2 < 0){
+		time_change_p2=mGenCamMax.dbl();
+	}else if(time_change_p2 > mGenCamMax.dbl()){
+		time_change_p2 = mGenCamMax.dbl();
 	}
 	if (time_change_v < 0){
-		time_change_v=std::ceil(time_e*10)/10;
+		time_change_v=mGenCamMax.dbl();
 	}else if(time_change_v > mGenCamMax.dbl()){
 		time_change_v = mGenCamMax.dbl();
 	}
 	if (time_change_a < 0){
-		time_change_a=std::ceil(time_e*10)/10;
+		time_change_a=mGenCamMax.dbl();
 	}else if(time_change_a > mGenCamMax.dbl()){
 		time_change_a = mGenCamMax.dbl();
 	}
+	
 	if(mGenCamLowDynamicsCounter >=  mGenCamLowDynamicsLimit){
 		// if ( mVehicleDataProvider->station_id() == 846930886){ // added by ryu
 		// 	std::cout << simTime() << ", mGenCamMax:" << mGenCamMax.dbl() << ", T_change is" <<(mGenCamMax.dbl() >time_change_a ||mGenCamMax.dbl() > time_change_v || mGenCamMax.dbl() > time_change_p) << ",time_change_a:" << time_change_a  << ",time_change_v:" << time_change_v  << ",time_change_p:" << time_change_p  << std::endl; 
 		// }
-		return (mGenCamMax.dbl() >time_change_a ||mGenCamMax.dbl() > time_change_v || mGenCamMax.dbl() > time_change_p);
+		std::cout << "mGenCamLowDynamicsCounter >=  mGenCamLowDynamicsLimit" << std::endl;
+		
+		// mTChange = mGenCamMax.dbl();
+		// if (isDiscriminat){
+		// 	return (mGenCamMax.dbl() >time_change_a ||mGenCamMax.dbl() > time_change_v);
+		// }
+		// else{
+		// 	return (mGenCamMax.dbl() >time_change_a ||mGenCamMax.dbl() > time_change_v || isPosition);
+		// }
+		if(time_e == mGenCamMax.dbl()){
+			mTChange = mGenCamMax.dbl();
+			return false;
+		}else{
+			
+			if (!isDiscriminat){
+				mTChange = std::min({time_change_a,time_change_v});
+				return (mGenCamMax.dbl() >time_change_a ||mGenCamMax.dbl() > time_change_v);
+			}
+			else{
+				mTChange = std::min({time_change_a,time_change_v,time_change_p1,time_change_p2});
+				return (mGenCamMax.dbl() >time_change_a ||mGenCamMax.dbl() > time_change_v || isPosition);
+			}
+		}
+		
 	}else{
 		// if ( mVehicleDataProvider->station_id() == 846930886){ // added by ryu
 		// 	std::cout << simTime()  << ", T_change is" <<(mGenCamMax.dbl() >time_change_a ||mGenCamMax.dbl() > time_change_v || mGenCamMax.dbl() > time_change_p) << ",time_change_a:" << time_change_a  << ",time_change_v:" << time_change_v  << ",time_change_p:" << time_change_p  << std::endl; 
 		// }
-		return (time_e > time_change_a || time_e > time_change_v  || time_e > time_change_p );
+		if(!isDiscriminat){
+			mTChange = std::min({time_change_a,time_change_v});
+			return (isAngle || isVector);
+		}else{
+			mTChange = std::min({time_change_a,time_change_v,time_change_p1,time_change_p2});
+			return (isAngle || isVector  || isPosition );
+		}
 	}
 
 

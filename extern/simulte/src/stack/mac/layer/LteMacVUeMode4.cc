@@ -1510,6 +1510,7 @@ bool LteMacVUeMode4::judgeTChange(std::unordered_map<std::string, std::string>& 
         }
         if(abs(std::stof(result[2])-interval) < 0.1){
             if(result[1] == "0"){
+                cout << "abs(std::stof(result[2])-interval) < 0.1,result[1]==0" << endl;
                 return false;
             }else{
                 if (result.size() > 3){ // escape segment falt
