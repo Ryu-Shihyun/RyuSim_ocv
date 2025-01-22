@@ -7,6 +7,8 @@ import pandas as pd
 import re
 import math
 import seaborn as sns
+from matplotlib import rcParams
+rcParams['pdf.fonttype'] = 42
 
 OVER_SIZE_LIMIT = 200_000_000
 
@@ -206,6 +208,48 @@ def count_el(s,target,timeRange,NODE):
     print(s)
     print(f'target is {target}')
     print("count i:" + str(count_i) + ", count i2:" + str(count_i2) + ", count s:" + str(count_s) + ", count s2:" + str(count_s2))
+    return [count_i,count_i2,count_s,count_s2]
+def count_el_by_length(s,target,timeRange,NODE):
+    count_i=0
+    count_i2=0
+    count_s=0
+    count_s2=0
+    with open(s) as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if row[1] == "vector" and row[3] == target:
+                vehicle = re.split("[\[\]]",row[2])[1]
+                times = re.split(" ",row[7])
+                array = re.split(" ",row[8])
+                for j in range(len(times)):
+                    if (vehicle in NODE[0].keys()
+                        and float(times[j]) >= timeRange[0][vehicle][0] 
+                        and float(times[j]) <= timeRange[0][vehicle][1] + 0.2):
+                        count_i += 1
+                        # if vehicle == '430':
+                            # print("a,"+times[j] + "," + array[j])
+                    if (vehicle in NODE[1].keys()
+                        and float(times[j]) >= timeRange[1][vehicle][0] 
+                        and float(times[j]) <= timeRange[1][vehicle][1] + 0.2):
+                        count_i2 += 1
+                        # if vehicle == '430':
+                            # print("b,"+times[j] + "," + array[j])
+                    if (vehicle in NODE[2].keys()
+                        and float(times[j]) >= timeRange[2][vehicle][0] 
+                        and float(times[j]) <= timeRange[2][vehicle][1] + 0.2):
+                        count_s += 1
+                        # if vehicle == '430':
+                            # print("c,"+times[j] + "," + array[j])
+                    if (vehicle in NODE[3].keys()
+                        and float(times[j]) >= timeRange[3][vehicle][0] 
+                        and float(times[j]) <= timeRange[3][vehicle][1] + 0.2):
+                        count_s2 += 1
+                        # if vehicle == '430':
+                            # print("d,"+times[j] + "," + array[j])
+    print(s)
+    print(f'target is {target}')
+    print("count i:" + str(count_i) + ", count i2:" + str(count_i2) + ", count s:" + str(count_s) + ", count s2:" + str(count_s2))
+    return [count_i,count_i2,count_s,count_s2]
 def count_el_and_total(s,target,timeRange,NODE):
     count_i=0
     count_i2=0
@@ -244,6 +288,7 @@ def count_el_and_total(s,target,timeRange,NODE):
     print(f'target is {target}')
     print("count i:" + str(count_i) + ", count i2:" + str(count_i2) + ", count s:" + str(count_s) + ", count s2:" + str(count_s2))
     print("total i:" + str(total[0]) + ", total i2:" + str(total[1]) + ", total s:" + str(total[2]) + ", total s2:" + str(total[3]))
+    return [[count_i,total[0]],[count_i2,total[1]],[count_s,total[2]],[count_s2,total[3]]]
 def count_el_and_total_d(s,target,timeRange,NODE,senderID):
     count_i=0
     count_i2=0
@@ -286,7 +331,7 @@ def count_el_and_total_d(s,target,timeRange,NODE,senderID):
     print(f'target is {target}')
     print("count i:" + str(count_i) + ", count i2:" + str(count_i2) + ", count s:" + str(count_s) + ", count s2:" + str(count_s2))
     print("total i:" + str(total[0]) + ", total i2:" + str(total[1]) + ", total s:" + str(total[2]) + ", total s2:" + str(total[3]))
-    
+    return [[count_i,total[0]],[count_i2,total[1]],[count_s,total[2]],[count_s2,total[3]]]
 
 
 def data_tbSent_node(row,x_data,NODE,timeRange):
@@ -397,8 +442,8 @@ def make_resourceMargin(x_data,y_data,NODE,timeRange,simTime,startTime):
                 count_margin +=1
             elif resource_data[i][j] >1:
                 count_overlap += 1
-    for j in range(simTime*1000+1):
-        print(f'{resource_node_data[0][j]} \t {resource_node_data[1][j]} \t {resource_node_data[2][j]}')    
+    # for j in range(simTime*1000+1):
+        # print(f'{resource_node_data[0][j]} \t {resource_node_data[1][j]} \t {resource_node_data[2][j]}')    
 
     print(f'\nTotal:{3*simTime*1000}, Overlap:{count_overlap}, Margin:{count_margin}')
 
@@ -455,9 +500,27 @@ def makeNodes(s,NODE):
                 NODE[vehicle]=id
 
 
+def show_index(current, previous):
+    diff = (current - previous)*100
+    return int(diff//100)-1
+
+def make_interval_simple(x_data,y_data,s):
+    with open(s) as f:
+        reader=csv.reader(f)
+        for row in reader:
+            if row[1] == "vector" and row[3] == "camSentHead:vector":
+                times = re.split(" ",row[7])
+                previous = float(times[0])
+                for i in range(1,len(times)):
+                    y_data[show_index(float(times[i]),previous)] +=1
+                    previous = float(times[i])   
+                
+        
+
+
 
 if mode == "traffic_pdr":
-    ss = "./results/pro1.4_smooth2_rri100.csv"
+    ss = "./results/pro3.0_smooth2.csv"
     ss2 = "./results/sps_smooth2_rri100.csv"
     span = 5
     if len(args)>=6:
@@ -500,29 +563,29 @@ if mode == "traffic_pdr":
         print(s)
         make_data(x_data[s],x_result[s],y_decode_data[s],y_total_data[s],y_result[s])
 
-    ax.scatter(x_result[ss][0][1:], y_result[ss][0][1:], marker="o", c="blue",label="pro_a")
-    ax.scatter(x_result[ss2][0][1:], y_result[ss2][0][1:], marker="+", c="blue",label="sps_a")
-    ax.scatter(x_result[sd][0][1:], y_result[sd][0][1:],marker="x", c="aqua",label="ds_a")
-    ax.scatter(x_result[ss][1][1:], y_result[ss][1][1:], marker="o", c="green",label="pro_b")
-    ax.scatter(x_result[ss2][1][1:], y_result[ss2][1][1:], marker="+", c="green",label="sps_b")
-    ax.scatter(x_result[sd][1][1:], y_result[sd][1][1:],marker="x", c="palegreen",label="ds_b")
-    ax.scatter(x_result[ss][2][1:], y_result[ss][2][1:], marker="o", c="red",label="pro_c")
-    ax.scatter(x_result[ss2][2][1:], y_result[ss2][2][1:], marker="+", c="red",label="sps_c")
-    ax.scatter(x_result[sd][2][1:], y_result[sd][2][1:],marker="x", c="violet",label="ds_c")
-    ax.scatter(x_result[ss][3][1:], y_result[ss][3][1:], marker="o", c="orange",label="pro_d")
-    ax.scatter(x_result[ss2][3][1:], y_result[ss2][3][1:], marker="+", c="orange",label="sps_d")
-    ax.scatter(x_result[sd][3][1:], y_result[sd][3][1:],marker="x", c="yellow",label="ds_d")
+    ax.scatter(x_result[ss][0][1:], y_result[ss][0][1:], marker="o", c="blue",label="Proposal_a")
+    ax.scatter(x_result[ss2][0][1:], y_result[ss2][0][1:], marker="+", c="deepskyblue",label="SB-SPS_a")
+    ax.scatter(x_result[sd][0][1:], y_result[sd][0][1:],marker="x", c="aqua",label="DS_a")
+    ax.scatter(x_result[ss][1][1:], y_result[ss][1][1:], marker="o", c="green",label="Proposal_b")
+    ax.scatter(x_result[ss2][1][1:], y_result[ss2][1][1:], marker="+", c="lawngreen",label="SB-SPS_b")
+    ax.scatter(x_result[sd][1][1:], y_result[sd][1][1:],marker="x", c="palegreen",label="DS_b")
+    ax.scatter(x_result[ss][2][1:], y_result[ss][2][1:], marker="o", c="red",label="Proposal_c")
+    ax.scatter(x_result[ss2][2][1:], y_result[ss2][2][1:], marker="+", c="deeppink",label="SB-SPS_c")
+    ax.scatter(x_result[sd][2][1:], y_result[sd][2][1:],marker="x", c="violet",label="DS_c")
+    ax.scatter(x_result[ss][3][1:], y_result[ss][3][1:], marker="o", c="orange",label="Proposal_d")
+    ax.scatter(x_result[ss2][3][1:], y_result[ss2][3][1:], marker="+", c="gold",label="SB-SPS_d")
+    ax.scatter(x_result[sd][3][1:], y_result[sd][3][1:],marker="x", c="yellow",label="DS_d")
     ax.plot(x_result[ss][0][1:], np.poly1d(np.polyfit(x_result[ss][0][1:], y_result[ss][0][1:], 1))(x_result[ss][0][1:]),c="blue")
-    ax.plot(x_result[ss2][0][1:], np.poly1d(np.polyfit(x_result[ss2][0][1:], y_result[ss2][0][1:], 1))(x_result[ss2][0][1:]),":",c="blue")
+    ax.plot(x_result[ss2][0][1:], np.poly1d(np.polyfit(x_result[ss2][0][1:], y_result[ss2][0][1:], 1))(x_result[ss2][0][1:]),":",c="deepskyblue")
     ax.plot(x_result[sd][0][1:], np.poly1d(np.polyfit(x_result[sd][0][1:], y_result[sd][0][1:], 1))(x_result[sd][0][1:]),c="aqua")
     ax.plot(x_result[ss][1][1:], np.poly1d(np.polyfit(x_result[ss][1][1:], y_result[ss][1][1:], 1))(x_result[ss][1][1:]),c="green")
-    ax.plot(x_result[ss2][1][1:], np.poly1d(np.polyfit(x_result[ss2][1][1:], y_result[ss2][1][1:], 1))(x_result[ss2][1][1:]),":",c="green")
+    ax.plot(x_result[ss2][1][1:], np.poly1d(np.polyfit(x_result[ss2][1][1:], y_result[ss2][1][1:], 1))(x_result[ss2][1][1:]),":",c="lawngreen")
     ax.plot(x_result[sd][1][1:], np.poly1d(np.polyfit(x_result[sd][1][1:], y_result[sd][1][1:], 1))(x_result[sd][1][1:]),c="palegreen")
     ax.plot(x_result[ss][2][1:], np.poly1d(np.polyfit(x_result[ss][2][1:], y_result[ss][2][1:], 1))(x_result[ss][2][1:]),c="red")
-    ax.plot(x_result[ss2][2][1:], np.poly1d(np.polyfit(x_result[ss2][2][1:], y_result[ss2][2][1:], 1))(x_result[ss2][2][1:]),":",c="red")
+    ax.plot(x_result[ss2][2][1:], np.poly1d(np.polyfit(x_result[ss2][2][1:], y_result[ss2][2][1:], 1))(x_result[ss2][2][1:]),":",c="deeppink")
     ax.plot(x_result[sd][2][1:], np.poly1d(np.polyfit(x_result[sd][2][1:], y_result[sd][2][1:], 1))(x_result[sd][2][1:]),c="violet")
     ax.plot(x_result[ss][3][1:], np.poly1d(np.polyfit(x_result[ss][3][1:], y_result[ss][3][1:], 1))(x_result[ss][3][1:]),c="orange")
-    ax.plot(x_result[ss2][3][1:], np.poly1d(np.polyfit(x_result[ss2][3][1:], y_result[ss2][3][1:], 1))(x_result[ss2][3][1:]),":",c="orange")
+    ax.plot(x_result[ss2][3][1:], np.poly1d(np.polyfit(x_result[ss2][3][1:], y_result[ss2][3][1:], 1))(x_result[ss2][3][1:]),":",c="gold")
     ax.plot(x_result[sd][3][1:], np.poly1d(np.polyfit(x_result[sd][3][1:], y_result[sd][3][1:], 1))(x_result[sd][3][1:]),c="yellow")
     
     ax.set_ylim(0,101)
@@ -567,10 +630,10 @@ if mode == "decodeCount":
         
 
 if mode == "resourceMargin":
-    ss="./results/pro1.1_smooth2_rri100.csv"
-    ss2="./results/pro1.4_smooth2_rri100.csv"
+    ss="./results/pro3.0_smooth2.csv"
+    # ss2="./results/pro1.4_smooth2_rri100.csv"
     
-    ss3="./results/sps_smooth2_rri300.csv"
+    ss3="./results/sps_smooth2_rri100.csv"
     sd="./results/ds_smooth2.csv"
     timeRange={}
     simTime = 30
@@ -578,7 +641,7 @@ if mode == "resourceMargin":
     NODE = {}
     x_data={}
     y_data={}
-    for s in [sd]:
+    for s in [ss,ss3,sd]:
         timeRange[s]=[{},{},{},{}]
         x_data[s] = [{},{},{},{}]
         y_data[s] = [{},{},{},{}]
@@ -604,7 +667,7 @@ if mode == "myenv_resourceMargin":
     # csv_d = 'results/test_0.3_ds.csv'
     csv_s10 ="results/intersection_sps_rri100.csv"
     csv_s50 ="results/intersection_pro1.1_rri100.csv"
-    csv_s100 ="results/intersection_pro2.1_rri100.csv"
+    csv_s100 ="results/intersection_pro3.0.csv"
     csv_d = 'results/intersection_ds.csv'
     timeRange={}
     simTime = 100
@@ -624,3 +687,131 @@ if mode == "myenv_resourceMargin":
                 timeRange[s][i][n]=[startTime,startTime+simTime]
         print(s)
         make_resourceMargin_simple(x_data[s],y_data[s],NODE[s],timeRange[s],simTime,startTime)
+
+if mode == "sending_interval":
+    ss = "results/intersection_sps_rri100.csv"
+    ss2 = "results/intersection_pro1.4_rri100.csv"
+    ss3 = "results/intersection_pro2.1_rri100.csv"
+    ss4 = "results/intersection_pro3.0.csv"
+    sd = "results/intersection_ds.csv"
+    x_data = ["100","200","300","400","500","600","700","800","900","1000"]
+    y_data={}
+    tp={}
+    labels=["sps","pro1.4","pro2.0","pro3.0","ds"]
+    label_index =0
+    for s in [ss,ss2,ss3,ss4,sd]:
+        y_data[s] = []
+        for i in range(len(x_data)):
+            y_data[s].append(0)
+        make_interval_simple(x_data,y_data[s],s)
+        tp[labels[label_index]]=y_data[s]
+        label_index += 1
+    fig, ax = plt.subplots()
+    df = pd.DataFrame(tp,x_data)
+    # ax.set_xticks(sendinterval)
+    # ax.set_xticklabels(left)
+    plt.xlabel("Generation Intaerval [ms]")
+    plt.ylabel("Number of CAM")
+    df.plot.bar(ax=ax)
+    # plt.setp(left, rotation=45, fontsize=9)
+    plt.xticks(fontsize=9)
+    plt.xticks(rotation=45)
+    save = "interval"
+    fig.savefig(save+"_"+option)
+
+
+if mode == "missedTransmission":
+    ss = "./results/pro3.0_smooth2.csv"
+    ss2 = "./results/sps_smooth2_rri100.csv"
+    startTime = 28800.0
+    simTime = 30
+    x_data=['Proposal_a','Proposal_b','Proposal_c','Proposal_d','SPS_a','SPS_b','SPS_c','SPS_d']
+    y_data = []
+    NODE = {}
+    timeRange={}
+    fig = plt.figure()
+    
+    colors=["blue","green","red","orange","deepskyblue","lawngreen","deeppink","gold"]
+    
+    for s in [ss,ss2]:
+        timeRange[s]=[{},{},{},{}]
+        if "pro" in s:
+            NODE[s]=[INTERSECTION_A_NODE_P,INTERSECTION_B_NODE_P,STREET_C_NODE_P,STREET_D_NODE_P]
+            make_timerange(s_c_a2,s_c_b2,s_c_c2,s_c_d2,timeRange[s])
+        else:
+            NODE[s]=[INTERSECTION_A_NODE,INTERSECTION_B_NODE,STREET_C_NODE,STREET_D_NODE]
+            make_timerange(s_c_a,s_c_b,s_c_c,s_c_d,timeRange[s])
+        for num in count_el(s,"grantBreakMissedTrans:vector",timeRange[s],NODE[s]):
+            y_data.append(num)
+
+    # 軸ラベルやタイトルを設定
+    plt.bar(x_data,y_data,color=colors,edgecolor="black",linewidth=1)
+    plt.xlabel('Traffic')
+    plt.ylabel('Counts of Waste Resources')
+    plt.xticks(rotation=45)
+    plt.show()
+    # plt.legend()
+
+    # グラフを表示
+    plt.show()
+    fig.savefig(mode+"_"+option+".pdf")
+
+if mode == "packetLoss":
+    ss = "./results/pro3.0_smooth2.csv"
+    ss2 = "./results/sps_smooth2_rri300.csv"
+    startTime = 28800.0
+    simTime = 30
+    x_data=['Proposal_a','Proposal_b','Proposal_c','Proposal_d','SPS_a','SPS_b','SPS_c','SPS_d']
+    y_data = []
+    NODE = {}
+    timeRange={}
+    fig = plt.figure(figsize=(6,4))
+    
+    colors=["blue","green","red","orange","deepskyblue","lawngreen","deeppink","gold"]
+    
+    for s in [ss,ss2]:
+        timeRange[s]=[{},{},{},{}]
+        if "pro" in s:
+            NODE[s]=[INTERSECTION_A_NODE_P,INTERSECTION_B_NODE_P,STREET_C_NODE_P,STREET_D_NODE_P]
+            make_timerange(s_c_a2,s_c_b2,s_c_c2,s_c_d2,timeRange[s])
+        else:
+            NODE[s]=[INTERSECTION_A_NODE,INTERSECTION_B_NODE,STREET_C_NODE,STREET_D_NODE]
+            make_timerange(s_c_a,s_c_b,s_c_c,s_c_d,timeRange[s])
+        message_nums = count_el_by_length(s,"camSentPositionX:vector",timeRange[s],NODE[s])
+        tbsent_nums = count_el(s,"tbSent:vector",timeRange[s],NODE[s])
+        for i in range(len(message_nums)):
+            y_data.append((message_nums[i] - tbsent_nums[i])/message_nums[i]*100)
+        
+
+    # 軸ラベルやタイトルを設定
+    plt.bar(x_data,y_data,color=colors,edgecolor="black",linewidth=1)
+    plt.ylim(0,31)
+    plt.xlabel('Traffic')
+    plt.ylabel('Packet Loss Rate [%]')
+    plt.xticks(rotation=45)
+    
+    # plt.legend()
+
+    # グラフを表示
+    plt.show()
+    fig.savefig(mode+"_"+option+".pdf")
+
+if mode == "count":
+    ss = "./results/pro3.0_smooth2.csv"
+    ss2 = "./results/sps_smooth2_rri300.csv"
+    startTime = 28800.0
+    simTime = 30
+    NODE = {}
+    timeRange={}
+    target = ""
+    if len(args)>=4 :
+        target=args[3]
+    for s in [ss2]:
+        timeRange[s]=[{},{},{},{}]
+        if "pro" in s:
+            NODE[s]=[INTERSECTION_A_NODE_P,INTERSECTION_B_NODE_P,STREET_C_NODE_P,STREET_D_NODE_P]
+            make_timerange(s_c_a2,s_c_b2,s_c_c2,s_c_d2,timeRange[s])
+        else:
+            NODE[s]=[INTERSECTION_A_NODE,INTERSECTION_B_NODE,STREET_C_NODE,STREET_D_NODE]
+            make_timerange(s_c_a,s_c_b,s_c_c,s_c_d,timeRange[s])
+        count_el_by_length(s,target,timeRange[s],NODE[s])

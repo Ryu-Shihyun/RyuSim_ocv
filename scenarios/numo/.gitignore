@@ -30,3 +30,5 @@ traffic.sh
 vehicle_memo
 *.zip
 *.data.csv
+.csv
+.pdf

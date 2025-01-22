@@ -713,9 +713,9 @@ if mode in ["pdrDistance", "0", "1","2"]:
     l =""
     yl = ""
     csv_s10 ="results/intersection_sps_rri300.csv"
-    csv_s50 ="results/intersection_pro1.1_rri100.csv"
-    csv_s100 ="results/intersection_pro1.5_rri300.csv"
-    csv_d = 'results/test_0.3_ds.csv'
+    csv_s50 ="results/intersection_pro1.5_rri300.csv"
+    csv_s100 ="results/intersection_pro3.0.csv"
+    csv_d = 'results/intersection_ds.csv'
     pdr_vector = ""
     if mode=="pdrDistance":
         pdr_vector = 'tbDecoded:vector'
@@ -742,9 +742,9 @@ if mode in ["pdrDistance", "0", "1","2"]:
     fig, ax = plt.subplots()
         
 
-    ax.plot(Pdr_Distance_Distances, pdr10,"o-", label="sps",c="blue")
-    ax.plot(Pdr_Distance_Distances, pdr50,"o-", label="pro1.1",c="navy")
-    ax.plot(Pdr_Distance_Distances, pdr100,"o-", label="pro1.3",c="aqua")
+    ax.plot(Pdr_Distance_Distances, pdr10,"o-", label="sps,rri300",c="blue")
+    ax.plot(Pdr_Distance_Distances, pdr50,"o-", label="pro1,rri300",c="navy")
+    ax.plot(Pdr_Distance_Distances, pdr100,"o-", label="pro2.b",c="aqua")
     ax.plot(Pdr_Distance_Distances, pdrD,"o-", label="ds",c="orange")
     
 

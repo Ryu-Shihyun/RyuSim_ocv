@@ -776,21 +776,21 @@ void LteMacVUeMode4::handleSelfMessage()
             //     cout << NOW << " expirationCounter_ > 0, periodCounter_:" << periodCounter_ << ", expirationCounter_:" << expirationCounter_<< endl;//test by ryu
              //start ryu
             // t_changeを確認する
-            std::string f1 = "parameter_nodeID.data.csv";
-            std::string f2 = "parameter.data.csv";
-            int nodeId_n = nodeId_ - 1025;
-            std::string nodeID_str = std::to_string(nodeId_n);
-            auto index = createIndex(f1);
-            auto index2 = createIndex(f2);
-            std::string searchResult = searchByIdUsingIndex(index, nodeID_str);
-            if (!searchResult.empty() && judgeTChange(index2, searchResult, periodCounter_ * 0.001)) {
-                // If t_change, this transmission makes the last SPS frame
-                cout << NOW << ", nodeID:" << nodeId_ <<" T_change" << endl;//test by ryu
-                expirationCounter_ = 0;
-                mode4Grant->setExpiration(0);
-                expiredGrant_ = true;
-                
-            }
+                // std::string f1 = "parameter_nodeID.data.csv";
+                // std::string f2 = "parameter.data.csv";
+                // int nodeId_n = nodeId_ - 1025;
+                // std::string nodeID_str = std::to_string(nodeId_n);
+                // auto index = createIndex(f1);
+                // auto index2 = createIndex(f2);
+                // std::string searchResult = searchByIdUsingIndex(index, nodeID_str);
+                // if (!searchResult.empty() && judgeTChange(index2, searchResult, periodCounter_ * 0.001)) {
+                //     // If t_change, this transmission makes the last SPS frame
+                //     cout << NOW << ", nodeID:" << nodeId_ <<" T_change" << endl;//test by ryu
+                //     expirationCounter_ = 0;
+                //     mode4Grant->setExpiration(0);
+                //     expiredGrant_ = true;
+                    
+                // }
         
             //end ryu
         }

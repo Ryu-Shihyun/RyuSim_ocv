@@ -968,9 +968,9 @@ if mode == "cam_pos":
     # street_pos = [0.0,1000.0,0.0,1000.0]
     street_pos = [9500.0,9600.0,14160.0,14510.0]#c
     #street_pos = [9670.0,10270.0,14670.0,14750.0] #d
-    s = "results/sps_smooth2_rri100.csv"
-    s_i = "results/intersection_b_test.csv"
-    s_s= "results/street_c_test.csv"
+    s = "results/pro3.0_smooth2.csv"
+    s_i = "results/intersection_b_pro3.csv"
+    s_s= "results/street_c_pro3.csv"
     csv_i =[]
     csv_s = []
     poses_i={}
